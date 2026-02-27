@@ -60,7 +60,6 @@
     <None Include="MediaDevices.chm" />
     <None Include="HowTo.md" />
     <None Include="packages.config" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="MediaDevicesLicense.txt" />

@@ -22,10 +22,11 @@ You can use this tool to fix the file names on your local drives : https://githu
 
 ### Examples
 ```
-CopyUpdates.exe -o "\4: Installed games" -d "C:\AllMyGames"				// Copy all				from an MTP-mounted Switch to a local drive via DBI
-CopyUpdates.exe -o "C:\Updates"			 -d "\5: SD Card install"		// Copy updates/DLCs	from a local drive to an MTP-mounted Switch via DBI
-CopyUpdates.exe -o "C:\Updates"			 -d "\5: SD Card install" -all	// Copy all				from a local drive to an MTP-mounted Switch via DBI
-CopyUpdates.exe -o "C:\Updates"			 -d "C:\AllMyGames"				// Move all	matching	from a local drive to another local drive + remove old versions
+CopyUpdates.exe :
+-o "\4: Installed games" -d "C:\AllMyGames"				// Copy all				from an MTP-mounted Switch to a local drive via DBI
+-o "C:\Updates"			 -d "\5: SD Card install"		// Copy updates/DLCs	from a local drive to an MTP-mounted Switch via DBI
+-o "C:\Updates"			 -d "\5: SD Card install" -all	// Copy all				from a local drive to an MTP-mounted Switch via DBI
+-o "C:\Updates"			 -d "C:\AllMyGames"				// Move all	matching	from a local drive to another local drive + remove old versions
 ```
 
 ### Options
