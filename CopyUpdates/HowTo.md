@@ -34,22 +34,8 @@
 
 ## B) Automated
 
-**First option: using CopyUpdates (recommended)**
-
 ```
 CopyUpdates.exe -o "\4: Installed games" -d "T:\NintendoGames"
-```
-
-**Second option: using mtpdrive & robocopy**
-
-- Install [mtpmount](https://github.com/hst125fan/mtpmount/releases/tag/19.8.0)
-- Install Doken
-- On your PC:
-
-```
-cd "C:\Program Files\MTPdrive"
-mtpmount-x64.exe mount Switch "4: Installed games" Y:
-robocopy "Y:\" "T:\NintendoGames" /E /XO /MIN:1
 ```
 
 ---
