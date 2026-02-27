@@ -1,6 +1,6 @@
 # CopyUpdates
 
-A console utility for synchronizing Nintendo Switch game files between an origin folder and a destination folder, especially useful when used with DBI's MTP mode.
+A console utility for synchronizing Nintendo Switch game files between an origin folder and a destination folder, especially useful when used with [DBI](https://github.com/rashevskyv/dbi/releases)'s MTP mode.
 It's a tool to automate the process of copying games/updates/DLCs between your Switch and your PC.
 
 ## Overview
@@ -23,10 +23,10 @@ You can use this tool to fix the file names on your local drives : https://githu
 ### Examples
 ```
 CopyUpdates.exe :
--o "\4: Installed games" -d "C:\AllMyGames"				// Copy all				from an MTP-mounted Switch to a local drive via DBI
--o "C:\Updates"			 -d "\5: SD Card install"		// Copy updates/DLCs	from a local drive to an MTP-mounted Switch via DBI
--o "C:\Updates"			 -d "\5: SD Card install" -all	// Copy all				from a local drive to an MTP-mounted Switch via DBI
--o "C:\Updates"			 -d "C:\AllMyGames"				// Move all	matching	from a local drive to another local drive + remove old versions
+-o "\4: Installed games" -d "C:\AllMyGames"				// Copy all, from an MTP-mounted Switch to a local drive via DBI
+-o "C:\Updates"			 -d "\5: SD Card install"		// Copy updates/DLCs, from a local drive to an MTP-mounted Switch via DBI
+-o "C:\Updates"			 -d "\5: SD Card install" -all	// Copy all, from a local drive to an MTP-mounted Switch via DBI
+-o "C:\Updates"			 -d "C:\AllMyGames"				// Move all, matching from a local drive to another local drive + remove old versions
 ```
 
 ### Options
@@ -78,8 +78,8 @@ The Legend of Zelda - Breath of the Wild/
 ```
 The Legend of Zelda - Breath of the Wild/
 ├── The Legend of Zelda - Breath of the Wild[01007EF00011E000][BASE].nsp
-└── The Legend of Zelda - Breath of the Wild[01007EF00011E800][v196608][UPD].nsp		// this was updated from v65536 to v196608
-└── The Legend of Zelda - Breath of the Wild[01007EF00011F001][DLC].nsp					// this was added from origin
+└── The Legend of Zelda - Breath of the Wild[01007EF00011E800][v196608][UPD].nsp // this was updated from v65536 to v196608
+└── The Legend of Zelda - Breath of the Wild[01007EF00011F001][DLC].nsp	// this was added from origin
 ```
 
 ----------------------------------------
