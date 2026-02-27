@@ -1,9 +1,9 @@
 # Examples in the command line
 ```
-CopyUpdates -o "\4: Installed games"    -d "C:\AllMyGames"		        // Copy all, from an MTP-mounted Switch to a local drive via DBI
-CopyUpdates -o "C:\Updates"	            -d "\5: SD Card install"		// Copy updates/DLCs, from a local drive to an MTP-mounted Switch via DBI
-CopyUpdates -o "C:\Updates"	            -d "\5: SD Card install" -all	// Copy all, from a local drive to an MTP-mounted Switch via DBI
-CopyUpdates -o "C:\Updates"             -d "C:\AllMyGames"				// Move all, matching from a local drive to another local drive + remove old versions
+CopyUpdates -o "\4: Installed games" -d "C:\AllMyGames"		// Copy all, from an MTP-mounted Switch to a local drive via DBI
+CopyUpdates -o "C:\Updates"	-d "\5: SD Card install"		// Copy updates/DLCs, from a local drive to an MTP-mounted Switch via DBI
+CopyUpdates -o "C:\Updates"	-d "\5: SD Card install" -all	// Copy all, from a local drive to an MTP-mounted Switch via DBI
+CopyUpdates -o "C:\Updates" -d "C:\AllMyGames"				// Move all, matching from a local drive to another local drive + remove old versions
 ```
 
 # How to update your games from DBI shops
