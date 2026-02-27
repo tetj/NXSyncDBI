@@ -17,8 +17,6 @@
   - Press A
   - Wait (it's normal if it's very slow)
 
----
-
 # How to copy your games/updates to your PC (as backup)
 
 ## A) Manually
@@ -38,8 +36,6 @@
 CopyUpdates.exe -o "\4: Installed games" -d "T:\NintendoGames"
 ```
 
----
-
 # How to update your games using torrents
 
 First, we need to download updates, then we will upload them on the Switch (see next section).
@@ -51,8 +47,6 @@ First, we need to download updates, then we will upload them on the Switch (see 
 - Check the Updates tab
 - Check Iptorrent or Torrenday for updates
 - When opening the `.torrent`, check that the version number in the filename matches the available version listed in Switch-Library-Manager
-
----
 
 # How to copy your games/updates to your Switch
 
@@ -92,8 +86,6 @@ First, we need to download updates, then we will upload them on the Switch (see 
   ConvertXciToNsp.exe -r "E:\ExtractedTorrents"
   ```
 
----
-
 ## Part B: Upload files
 
 ### Option 1: Manually upload games/updates/DLCs to your Switch
@@ -131,14 +123,10 @@ If you already had games on your PC in another folder, you can synchronize `E:\`
 CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 ```
 
----
-
 # How to organize your games/ROMs on your PC
 
 - Use this tool to rename all NSP files to a consistent format: https://github.com/tetj/ConvertXciToNsp
 - Other tools: https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx
-
----
 
 # How to keep track of all your games in one place (Playnite)
 
