@@ -1,6 +1,4 @@
-# How to update your games easily?
-
-## How to update your games from DBI shops
+# How to update your games from DBI shops
 
 - Install [DBI](https://github.com/rashevskyv/dbi/releases) on your Switch
 - Open DBI
@@ -21,9 +19,9 @@
 
 ---
 
-## How to copy your games/updates to your PC (as backup)
+# How to copy your games/updates to your PC (as backup)
 
-### A) Manually
+## A) Manually
 
 - Connect your Nintendo Switch to your PC using a USB cable
 - Open DBI on your Switch
@@ -34,7 +32,7 @@
 - On your PC, File Explorer → This PC → Switch → "4: Installed games"
 - Copy folder by folder
 
-### B) Automated
+## B) Automated
 
 **First option: using CopyUpdates (recommended)**
 
@@ -56,7 +54,7 @@ robocopy "Y:\" "T:\NintendoGames" /E /XO /MIN:1
 
 ---
 
-## How to update your games using torrents
+# How to update your games using torrents
 
 First, we need to download updates, then we will upload them on the Switch (see next section).
 
@@ -70,9 +68,9 @@ First, we need to download updates, then we will upload them on the Switch (see 
 
 ---
 
-## How to copy your games/updates to your Switch
+# How to copy your games/updates to your Switch
 
-### Part A: Unzip downloaded files and organize them
+## Part A: Unzip downloaded files and organize them
 
 - Install WinRAR
 - Unrar all games using PowerShell:
@@ -110,9 +108,9 @@ First, we need to download updates, then we will upload them on the Switch (see 
 
 ---
 
-### Part B: Upload files
+## Part B: Upload files
 
-#### Option 1: Manually upload games/updates/DLCs to your Switch
+### Option 1: Manually upload games/updates/DLCs to your Switch
 
 - Open DBI on your Switch
   - Hold R button while starting a game
@@ -131,7 +129,7 @@ First, we need to download updates, then we will upload them on the Switch (see 
 - Wait
 - Press B when completed
 
-#### Option 2: Automatically upload all new updates/DLCs to your Switch
+### Option 2: Automatically upload all new updates/DLCs to your Switch
 
 ```
 CopyUpdates.exe -o E:\ExtractedTorrents -d "\5: SD Card install"
@@ -149,14 +147,14 @@ CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 
 ---
 
-## How to organize your games/ROMs on your PC
+# How to organize your games/ROMs on your PC
 
 - Use this tool to rename all NSP files to a consistent format: https://github.com/tetj/ConvertXciToNsp
 - Other tools: https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx
 
 ---
 
-## How to keep track of all your games in one place (Playnite)
+# How to keep track of all your games in one place (Playnite)
 
 - [ImportingSwitchNSP guide](https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx?raw=1)
 - [Playnite guide](https://github.com/tetj/BonusTools/blob/master/documentation/Playnite.docx?raw=1)
