@@ -1,3 +1,11 @@
+# Examples in the command line
+```
+CopyUpdates -o "\4: Installed games"    -d "C:\AllMyGames"		        // Copy all, from an MTP-mounted Switch to a local drive via DBI
+CopyUpdates -o "C:\Updates"	            -d "\5: SD Card install"		// Copy updates/DLCs, from a local drive to an MTP-mounted Switch via DBI
+CopyUpdates -o "C:\Updates"	            -d "\5: SD Card install" -all	// Copy all, from a local drive to an MTP-mounted Switch via DBI
+CopyUpdates -o "C:\Updates"             -d "C:\AllMyGames"				// Move all, matching from a local drive to another local drive + remove old versions
+```
+
 # How to update your games from DBI shops
 
 - Install [DBI](https://github.com/rashevskyv/dbi/releases) on your Switch
@@ -45,8 +53,8 @@ First, we need to download updates, then we will upload them on the Switch (see 
 - Check the README file and `settings.json` file for more details about the configuration
 - Scan your library
 - Check the Updates tab
-- Check Iptorrent or Torrenday for updates
-- When opening the `.torrent`, check that the version number in the filename matches the available version listed in Switch-Library-Manager
+- Check your favorite websites for updates
+- When opening the `.torrent`, check that the version number in the filename matches the latest available version listed in Switch-Library-Manager
 
 # How to copy your games/updates to your Switch
 
@@ -64,7 +72,7 @@ First, we need to download updates, then we will upload them on the Switch (see 
   ```powershell
   Mkdir E:\ExtractedTorrents
   Get-ChildItem -Path E:\DownloadedTorrents -Recurse -File -Include *.nsp,*.xci,*.nsz |
-    Move-Item -Destination E:\ExtractedTorrents
+  Move-Item -Destination E:\ExtractedTorrents
   ```
   Alternative via cmd:
   ```
@@ -81,7 +89,7 @@ First, we need to download updates, then we will upload them on the Switch (see 
   ```
   - On an SSD, expect about 3 minutes to convert a 16 GB `.xci` file.
   - On an HDD, expect about 8 minutes.
-- Convert all NSP into clean file format:
+  - Convert all NSP into clean file format:
   ```
   ConvertXciToNsp.exe -r "E:\ExtractedTorrents"
   ```
