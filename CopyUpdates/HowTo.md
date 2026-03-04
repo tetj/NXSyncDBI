@@ -11,10 +11,10 @@
   - [Part B: Upload files](#part-b-upload-files)
     - [Option 1: Manually upload games/updates/DLCs to your Switch](#option-1-manually-upload-gamesupdatesdlcs-to-your-switch)
     - [Option 2: Automatically upload all new updates/DLCs to your Switch](#option-2-automatically-upload-all-new-updatesdlcs-to-your-switch)
-  - [How to organize your games/ROMs on your PC](#how-to-organize-your-gamesroms-on-your-pc)
-  - [How to have your own local DBI shop (OwnFoil alternative)](#how-to-have-your-own-local-dbi-shop-ownfoil-alternative)
-    - [Note about the file organization](#note-about-the-file-organization)
-  - [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
+- [How to organize your games/ROMs on your PC](#how-to-organize-your-gamesroms-on-your-pc)
+- [How to have your own local DBI shop (OwnFoil alternative)](#how-to-have-your-own-local-dbi-shop-ownfoil-alternative)
+  - [Note about the file organization](#note-about-the-file-organization)
+- [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
 
 ---
 
