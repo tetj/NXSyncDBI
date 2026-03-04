@@ -152,7 +152,7 @@ CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 - You will have to put your files in the SGS /games folder. 
 - If you don't want to move your files there for some reasons, I suggest installing SGS in the parent folder of your games.
 - So you would do something like this :
-**Using Git Bash :**
+- **Using Git Bash :**
 ```
 cd "C:/Nintendo/MyGames"
 git clone https://github.com/notf0und/SGS
