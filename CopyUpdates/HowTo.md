@@ -146,7 +146,9 @@ CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 
 # How to have your own local DBI shop (OwnFoil alternative)
 - Follow Quickstart here : https://github.com/notf0und/SGS
-- You should get 11MB/sec transfer speed. If you don't, try forcing 5GHz Wi-Fi.
+- You should get 11MB/sec transfer speed. If you don't, try forcing 5GHz Wi-Fi (on your router).
+
+### Note about the file organization :
 - You will have to put your files in the SGS /games folder. 
 - If you don't want to move your files there for some reasons, I suggest installing SGS in the parent folder of your games.
 - So you would do something like this :
