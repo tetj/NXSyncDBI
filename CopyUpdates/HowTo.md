@@ -138,5 +138,5 @@ CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 
 # How to keep track of all your games in one place (Playnite)
 
-- [ImportingSwitchNSP guide](https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx?raw=1)
+- [Importing Switch NSP guide](https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx?raw=1)
 - [Playnite guide](https://github.com/tetj/BonusTools/blob/master/documentation/Playnite.docx?raw=1)
