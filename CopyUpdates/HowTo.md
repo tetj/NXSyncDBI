@@ -151,15 +151,15 @@ If you already had games on your PC in another folder, you can synchronize `E:\`
 CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 ```
 
-## How to organize your games/ROMs on your PC
+# How to organize your games/ROMs on your PC
 
 - Use this tool to rename all NSP files to a consistent format: https://github.com/tetj/ConvertXciToNsp
 
-## How to have your own local DBI shop (OwnFoil alternative)
+# How to have your own local DBI shop (OwnFoil alternative)
 - Follow Quickstart here : https://github.com/notf0und/SGS
 - You should get 11MB/sec transfer speed. If you don't, try forcing 5GHz Wi-Fi.
 
-### Note about the file organization :
+## Note about the file organization :
 - You will have to put your files in the SGS /games folder. 
 - If you don't want to move your files there for some reasons, I suggest installing SGS in the parent folder of your games.
 - So you would do something like this :
@@ -183,7 +183,7 @@ Then editing C:\Nintendo\docker.compose.yml :
 docker compose up -d
 ```
 
-## How to keep track of all your games in one place (Playnite)
+# How to keep track of all your games in one place (Playnite)
 
 - [Importing Switch NSP guide](https://github.com/tetj/BonusTools/blob/main/documentation/ImportingSwitchNSP.md)
 - [Playnite guide](https://github.com/tetj/BonusTools/blob/master/documentation/Playnite.docx?raw=1)
