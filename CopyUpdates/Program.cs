@@ -47,14 +47,19 @@ namespace CopyUpdates
                 }
             }
 
-            // Auto-detect MTP mode: if either path starts with a backslash, it refers to an MTP device path.
-            bool mtpMode = originPath.StartsWith(@"\") || destinationPath.StartsWith(@"\");
+            // Auto-detect MTP mode: DBI paths start with a backslash; sphaira paths start with "This PC\".
+            bool mtpMode = originPath.StartsWith(@"\") || destinationPath.StartsWith(@"\")
+                || originPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase)
+                || destinationPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase);
+
+            // An MTP origin means pull mode (MTP → local); a local origin means push mode (local → MTP).
+            bool isMtpOrigin = originPath.StartsWith(@"\") || originPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase);
 
             try
             {
                 if (mtpMode)
                 {
-                    if (!originPath.StartsWith(@"\"))
+                    if (!isMtpOrigin)
                     {
                         // Push mode: local backup → MTP device
                         try
@@ -69,7 +74,7 @@ namespace CopyUpdates
                             Console.WriteLine($"Error: Origin directory does not exist: {originPath}");
                             return;
                         }
-                        UploadToMtp(originPath, destinationPath, @"\4: Installed games", null, uploadAll);
+                        UploadToMtp(originPath, destinationPath, null, null, uploadAll);
                     }
                     else
                     {
@@ -184,7 +189,7 @@ namespace CopyUpdates
                         if (matchedDestFolder != null)
                         {
                             string expectedPrefix = GetTitlePrefix(matchedFid);
-                            nbSucessfullyCopied =+ SynchronizeFolders(originFolder, matchedDestFolder, expectedPrefix, mtpMode);
+                            nbSucessfullyCopied = +SynchronizeFolders(originFolder, matchedDestFolder, expectedPrefix, mtpMode);
                         }
                     }
 
@@ -296,8 +301,9 @@ namespace CopyUpdates
             Console.WriteLine("  Game Title [0100XXXXXXXX0000][v131072].nsp");
             Console.WriteLine();
             Console.WriteLine("Examples:");
-            Console.WriteLine("  CopyUpdates.exe -o \"\\4: Installed games\" -d T:\\Backup\\         (Download updates from Switch: origin starts with \\)");
-            Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d \"\\5: SD Card install\"       (Upload updates to Switch: dest starts with \\)");
+            Console.WriteLine("  CopyUpdates.exe -o \"\\4: Installed games\" -d T:\\Backup\\         (Download updates from Switch via DBI: origin starts with \\)");
+            Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d \"\\5: SD Card install\"       (Upload updates to Switch via DBI: dest starts with \\)");
+            //Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\                                   (Upload updates to Switch via sphaira: auto-detects paths)");
             Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d C:\\AllMyGames\\               (local: no backslash prefix)");
             Console.WriteLine();
             Console.WriteLine("If no arguments are provided, the application runs in interactive mode.");

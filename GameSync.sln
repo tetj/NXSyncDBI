@@ -5,7 +5,7 @@ VisualStudioVersion = 18.4.11519.219 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CopyUpdates", "CopyUpdates\CopyUpdates.csproj", "{C3BBD81F-4CBF-4992-AE79-602A3B98492D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{88027A5A-749A-412D-9E62-A5B6996BB071}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0D739D8B-E982-4CD9-8F8A-ADD7A1813ABE}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection

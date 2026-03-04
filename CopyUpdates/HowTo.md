@@ -1,3 +1,23 @@
+# Table of Contents
+
+- [Examples in the command line](#examples-in-the-command-line)
+- [How to update your games from DBI shops](#how-to-update-your-games-from-dbi-shops)
+- [How to copy your games/updates to your PC (as backup)](#how-to-copy-your-gamesupdates-to-your-pc-as-backup)
+  - [A) Manually](#a-manually)
+  - [B) Automated](#b-automated)
+- [How to update your games using torrents](#how-to-update-your-games-using-torrents)
+- [How to copy your games/updates to your Switch](#how-to-copy-your-gamesupdates-to-your-switch)
+  - [Part A: Unzip downloaded files and organize them](#part-a-unzip-downloaded-files-and-organize-them)
+  - [Part B: Upload files](#part-b-upload-files)
+    - [Option 1: Manually upload games/updates/DLCs to your Switch](#option-1-manually-upload-gamesupdatesdlcs-to-your-switch)
+    - [Option 2: Automatically upload all new updates/DLCs to your Switch](#option-2-automatically-upload-all-new-updatesdlcs-to-your-switch)
+  - [How to organize your games/ROMs on your PC](#how-to-organize-your-gamesroms-on-your-pc)
+  - [How to have your own local DBI shop (OwnFoil alternative)](#how-to-have-your-own-local-dbi-shop-ownfoil-alternative)
+    - [Note about the file organization](#note-about-the-file-organization)
+  - [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
+
+---
+
 # Examples in the command line
 ```
 CopyUpdates -o "\4: Installed games" -d "C:\AllMyGames"		// Copy all, MTP-mounted Switch -> local drive via DBI
@@ -131,12 +151,39 @@ If you already had games on your PC in another folder, you can synchronize `E:\`
 CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 ```
 
-# How to organize your games/ROMs on your PC
+## How to organize your games/ROMs on your PC
 
 - Use this tool to rename all NSP files to a consistent format: https://github.com/tetj/ConvertXciToNsp
-- Other tools: https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx
 
-# How to keep track of all your games in one place (Playnite)
+## How to have your own local DBI shop (OwnFoil alternative)
+- Follow Quickstart here : https://github.com/notf0und/SGS
+- You should get 11MB/sec transfer speed. If you don't, try forcing 5GHz Wi-Fi.
 
-- [Importing Switch NSP guide](https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx?raw=1)
+### Note about the file organization :
+- You will have to put your files in the SGS /games folder. 
+- If you don't want to move your files there for some reasons, I suggest installing SGS in the parent folder of your games.
+- So you would do something like this :
+**Using Git Bash :**
+```
+cd "C:/Nintendo/MyGames"
+git clone https://github.com/notf0und/SGS
+cd SGS
+robocopy . .. /E /MOVE
+cd ..
+rmdir /s SGS
+```
+
+Then editing C:\Nintendo\docker.compose.yml :
+```
+    volumes:
+      - ./MyGames:/app/www/storage/app/public/games
+```
+- Don't forget the following command to apply the changes :
+```
+docker compose up -d
+```
+
+## How to keep track of all your games in one place (Playnite)
+
+- [Importing Switch NSP guide](https://github.com/tetj/BonusTools/blob/main/documentation/ImportingSwitchNSP.md)
 - [Playnite guide](https://github.com/tetj/BonusTools/blob/master/documentation/Playnite.docx?raw=1)

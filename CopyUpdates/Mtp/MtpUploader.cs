@@ -11,13 +11,22 @@ namespace CopyUpdates
 {
     partial class Program
     {
+        // MTP path constants for the DBI app.
+        private const string DbiInstalledGamesPath = @"\4: Installed games";
+        private const string DbiDefaultInstallPath = @"\5: SD Card install";
+
+        // MTP path constants for the sphaira app.
+        private const string SphairaInstalledGamesPath = @"\Games";
+        private const string SphairaDefaultInstallPath = @"\Install (NSP, XCI, NSZ, XCZ)";
+
         // Uploads local game files to an MTP device for games that are already installed on the Switch.
         // Only updates and DLCs are uploaded; base games are always skipped.
         // Files already present on the device at the same or a newer version are also skipped.
+        // When mtpRefPath is null or empty, the MTP app (DBI or sphaira) is auto-detected by probing the device.
         private static void UploadToMtp(
             string localOriginPath, // local folder containing the game files to upload.
-            string mtpDestPath,     // path on the MTP device where uploaded files will be placed.
-            string mtpRefPath,      // path on the MTP device scanned to detect which games are installed.
+            string mtpDestPath,     // path on the MTP device where uploaded files will be placed; uses the detected app default when empty.
+            string mtpRefPath,      // path on the MTP device scanned to detect which games are installed; auto-detected when null or empty.
             string deviceName,      // optional substring of the device friendly name; uses the first device if empty.
             bool uploadAll = false) // when true, base games are also uploaded if not already installed.
         {
@@ -53,9 +62,18 @@ namespace CopyUpdates
 
             try
             {
+                // If no ref path was provided, probe the device to detect DBI or sphaira.
+                if (string.IsNullOrEmpty(mtpRefPath))
+                {
+                    if (!DetectMtpAppPaths(device, mtpDestPath, out mtpRefPath, out mtpDestPath))
+                    {
+                        Console.WriteLine("Could not detect DBI or sphaira MTP mode. Make sure your Switch is connected and an MTP app is active.");
+                        return;
+                    }
+                }
+
                 HashSet<string> installedPrefixes;
                 Dictionary<string, int> switchContentMap;
-
 
                 bool flowControl = ScanMTP(mtpRefPath, device, out installedPrefixes, out switchContentMap);
                 if (!flowControl)
@@ -69,6 +87,50 @@ namespace CopyUpdates
             {
                 device.Disconnect();
             }
+        }
+
+        // Probes the connected MTP device to identify whether DBI or sphaira is active,
+        // then resolves the appropriate ref path (for scanning installed games) and destination path.
+        // Returns: true if a supported MTP app was detected; false if neither DBI nor sphaira was found.
+        private static bool DetectMtpAppPaths(
+            MediaDevice device,      // the connected MTP device to probe.
+            string userDestPath,     // destination path provided by the user; overrides the app default when not empty.
+            out string mtpRefPath,   // set to the path used to scan which games are installed.
+            out string mtpDestPath)  // set to userDestPath if provided, otherwise the detected app default.
+        {
+            // Try DBI first.
+            try
+            {
+                if (TryEnumerateMtpDirectories(device, DbiInstalledGamesPath, 5) != null)
+                {
+                    Console.WriteLine("Detected DBI MTP mode.");
+                    mtpRefPath = DbiInstalledGamesPath;
+                    mtpDestPath = string.IsNullOrEmpty(userDestPath) ? DbiDefaultInstallPath : userDestPath;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            // Try sphaira.
+            try
+            {
+                if (TryEnumerateMtpDirectories(device, SphairaInstalledGamesPath, 5) != null)
+                {
+                    Console.WriteLine("Detected sphaira MTP mode.");
+                    mtpRefPath = SphairaInstalledGamesPath;
+                    mtpDestPath = string.IsNullOrEmpty(userDestPath) ? SphairaDefaultInstallPath : userDestPath;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            mtpRefPath = null;
+            mtpDestPath = null;
+            return false;
         }
 
         // Step 1: Scan the MTP device to detect which games are installed and which versions they have
