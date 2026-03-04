@@ -12,7 +12,6 @@
     - [Option 2: Automatically upload all new updates/DLCs to your Switch](#option-2-automatically-upload-all-new-updatesdlcs-to-your-switch)
 - [How to organize your games/ROMs on your PC](#how-to-organize-your-gamesroms-on-your-pc)
 - [How to have your own local DBI shop (OwnFoil alternative)](#how-to-have-your-own-local-dbi-shop-ownfoil-alternative)
-  - [Note about the file organization](#note-about-the-file-organization)
 - [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
 
 
@@ -148,8 +147,6 @@ CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 # How to have your own local DBI shop (OwnFoil alternative)
 - Follow Quickstart here : https://github.com/notf0und/SGS
 - You should get 11MB/sec transfer speed. If you don't, try forcing 5GHz Wi-Fi.
-
-## Note about the file organization :
 - You will have to put your files in the SGS /games folder. 
 - If you don't want to move your files there for some reasons, I suggest installing SGS in the parent folder of your games.
 - So you would do something like this :
