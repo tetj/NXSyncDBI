@@ -1,6 +1,5 @@
 # Table of Contents
 
-- [Examples in the command line](#examples-in-the-command-line)
 - [How to update your games from DBI shops](#how-to-update-your-games-from-dbi-shops)
 - [How to copy your games/updates to your PC (as backup)](#how-to-copy-your-gamesupdates-to-your-pc-as-backup)
   - [A) Manually](#a-manually)
@@ -16,15 +15,6 @@
   - [Note about the file organization](#note-about-the-file-organization)
 - [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
 
----
-
-# Examples in the command line
-```
-CopyUpdates -o "\4: Installed games" -d "C:\AllMyGames"		// Copy all, MTP-mounted Switch -> local drive via DBI
-CopyUpdates -o "C:\Updates"	-d "\5: SD Card install"		// Copy updates/DLCs, local drive -> MTP-mounted Switch via DBI
-CopyUpdates -o "C:\Updates"	-d "\5: SD Card install" -all	// Copy all, local drive -> MTP-mounted Switch via DBI
-CopyUpdates -o "C:\Updates" -d "C:\AllMyGames"				// Move all, local drive -> local drive + remove old versions
-```
 
 # How to update your games from DBI shops
 
