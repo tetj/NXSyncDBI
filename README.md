@@ -20,6 +20,21 @@ You can use this tool to fix the file names on your local drives : https://githu
 # How to use this tool ?
 - Check [HowTo.md](CopyUpdates/HowTo.md) for instructions
 
+# Examples in the command line
+```
+// Copy all, MTP-mounted Switch -> local drive via DBI
+CopyUpdates -o "\4: Installed games" -d "C:\AllMyGames"	
+
+// Copy updates/DLCs, local drive -> MTP-mounted Switch via DBI
+CopyUpdates -o "C:\Updates"	-d "\5: SD Card install"
+
+// Copy all, local drive -> MTP-mounted Switch via DBI
+CopyUpdates -o "C:\Updates"	-d "\5: SD Card install" -all
+
+// Move all, local drive -> local drive + remove old versions
+CopyUpdates -o "C:\Updates" -d "C:\AllMyGames"				
+```
+
 ### Options
 
 | Flag | Long form | Description |
