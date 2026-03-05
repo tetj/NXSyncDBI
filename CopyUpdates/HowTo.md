@@ -175,4 +175,4 @@ docker compose up -d
 # How to keep track of all your games in one place (Playnite)
 
 - [Importing Switch NSP guide](https://github.com/tetj/BonusTools/blob/main/documentation/ImportingSwitchNSP.md)
-- [Playnite guide](https://github.com/tetj/BonusTools/blob/master/documentation/Playnite.docx?raw=1)
+- [Playnite guide](https://github.com/tetj/BonusTools/blob/main/documentation/Playnite.docx?raw=1)
