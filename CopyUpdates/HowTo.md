@@ -57,7 +57,8 @@ CopyUpdates.exe -o "\4: Installed games" -d "T:\NintendoGames"
 
 First, we need to download updates, then we will upload them on the Switch (see next section).
 
-- Install Switch-Library-Manager
+- Install [Switch-Library-Manager](https://github.com/giwty/switch-library-manager)
+- Use [Lockpick RCM](https://github.com/saneki/Lockpick_RCM) to get your keys if you don't have them already
 - Copy your `*.keys` in the Switch-Library-Manager folder
 - Check the README file and `settings.json` file for more details about the configuration
 - Scan your library
@@ -91,7 +92,7 @@ First, we need to download updates, then we will upload them on the Switch (see 
 **Optional — rename files:**
 
 - Download this tool to rename your files: https://github.com/tetj/ConvertXciToNsp
-- More options: https://github.com/tetj/BonusTools/blob/master/documentation/ImportingSwitchNSP.docx
+- [Alternatives](https://github.com/tetj/BonusTools/blob/main/documentation/ImportingSwitchNSP.md#2-rename-your-files-to-match-that-pattern) to rename your files 
 - Convert all XCI to NSP:
   ```
   ConvertXciToNsp.exe -c -d "E:\ExtractedTorrents"
@@ -112,7 +113,7 @@ First, we need to download updates, then we will upload them on the Switch (see 
   - You are now in HBMenu
   - Open DBI
 - Select option "Install … DBI Backend"
-- Install DBI Backend on your PC
+- Install [DBI Backend](https://github.com/rashevskyv/dbi/releases) on your PC
 - Open DBI Backend
 - Click **Add Folder**
 - Select `E:\ExtractedTorrents`
