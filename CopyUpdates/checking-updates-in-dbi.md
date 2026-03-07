@@ -32,5 +32,5 @@ If the scan fails or doesn't highlight games, check `sdmc:/switch/DBI/dbi.config
 
 * **If games aren't highlighted:** Ensure `HighlightUpdates=true`.
 * **If the scan gives a network error:** Your `TitleDB` URL is likely dead. Replace it under `[Network sources]` with a current working mirror:
-  ```ini
+```ini
 TitleDB=https://raw.githubusercontent.com/blawar/titledb/master/US.en.json
