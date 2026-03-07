@@ -22,14 +22,10 @@ DBI automatically records the results of your scan in a log file.
 2. Navigate to `SD Card > switch > DBI > dbi.log`.
 3. Open **dbi.log** to see the list of games and versions that need attention. You can copy this data for your records.
 
-## 4. Configuration (dbi.config)
-Ensure `sdmc:/switch/DBI/dbi.config` is set up to allow network checks:
+## 4. Troubleshooting (Config Fixes)
+If the scan fails or doesn't highlight games, check `sdmc:/switch/DBI/dbi.config`:
 
-```ini
-[General]
-UpdateCheck=true
-HighlightUpdates=true
-
-[Network sources]
-; Required to know what the 'latest' version is
-TitleDB=URLList|[https://raw.githubusercontent.com/blawar/titledb/master/versions.txt](https://raw.githubusercontent.com/blawar/titledb/master/versions.txt)
+* **If games aren't highlighted:** Ensure `HighlightUpdates=true`.
+* **If the scan gives a network error:** Your `TitleDB` URL is likely dead. Replace it under `[Network sources]` with a current working mirror:
+  ```ini
+  TitleDB=URLList|[https://raw.githubusercontent.com/blawar/titledb/master/versions.txt](https://raw.githubusercontent.com/blawar/titledb/master/versions.txt)
