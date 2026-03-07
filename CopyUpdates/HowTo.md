@@ -33,6 +33,7 @@
   - Wait (see progress bar)
   - Press A
   - Wait (it's normal if it's very slow)
+ - Some updates might not be on notUltraNX, you can check for updates using this [guide](https://github.com/tetj/NXSyncDBI/blob/main/CopyUpdates/checking-updates-in-dbi.md)
 
 # How to copy your games/updates to your PC (as backup)
 
