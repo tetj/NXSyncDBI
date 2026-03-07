@@ -16,7 +16,7 @@ Always launch in **Full Mode** (Black background) to ensure enough memory:
 | **Проверка обновлений игр** | Check for game updates |
 | **Обновить titleDB** | Update Version Database |
 
-## 3. Exporting the List to a File
+## 3. Exporting the List to a File (optional)
 DBI automatically records the results of your scan in a log file.
 1. Run **Запустить MTP соединение** (MTP Responder) and connect to PC.
 2. Navigate to `SD Card > switch > DBI > dbi.log`.
