@@ -29,3 +29,8 @@ If the scan fails or doesn't highlight games, check `sdmc:/switch/DBI/dbi.config
 * **If the scan gives a network error:** Your `TitleDB` URL is likely dead. Replace it under `[Network sources]` with a current working mirror:
   ```ini
   TitleDB=URLList|[https://raw.githubusercontent.com/blawar/titledb/master/versions.txt](https://raw.githubusercontent.com/blawar/titledb/master/versions.txt)
+
+## 5. Highlight Colors (optional)
+In the Просмотр установленных игр (Browse apps) list:
+- Blue/Light Blue: A newer update is available.
+- Red: DLC is missing/available.
