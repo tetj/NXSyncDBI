@@ -114,21 +114,12 @@ namespace CopyUpdates
                 List<string> originFolders = new List<string>();
                 originFolders.AddRange(Directory.GetDirectories(originPath));
 
-                int totalFolders = originFolders.Count;
-
-                if (totalFolders == 0)
-                {
-                    Console.WriteLine("\nNo folders found in origin directory.");
-                    WaitForKeyPressIfInteractive(args);
-                    return;
-                }
-
                 if (compareMode)
                 {
                     int totalMismatches = 0;
                     for (int i = 0; i < originFolders.Count; i++)
                     {
-                        totalMismatches += Compare(destinationPath, originFolders, totalFolders, i, mtpMode);
+                        totalMismatches += Compare(destinationPath, originFolders, originFolders.Count, i, mtpMode);
                     }
                     if (totalMismatches == 0)
                     {
@@ -157,7 +148,7 @@ namespace CopyUpdates
                     for (int i = 0; i < originFolders.Count; i++)
                     {
                         string originFolder = originFolders[i];
-                        DrawProgressBar(i + 1, totalFolders);
+                        DrawProgressBar(i + 1, originFolders.Count);
 
                         string matchedDestFolder = null;
                         string matchedFid = null;
@@ -196,8 +187,6 @@ namespace CopyUpdates
                             nbSucessfullyCopied = +SynchronizeFolders(originFolder, matchedDestFolder, expectedPrefix, mtpMode);
                         }
                     }
-
-                    //Console.WriteLine("\nSync completed successfully!");
 
                     // Process loose files directly in originPath
                     MoveOriginFilesToDestination(originPath, idToDestFolder, mtpMode);
