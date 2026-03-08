@@ -10,26 +10,58 @@ namespace CopyUpdates
 {
     partial class Program
     {
+        // Writes a message to the console in red, then resets the color.
+        private static void WriteError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        // Writes a message to the console in yellow, then resets the color.
+        private static void WriteWarning(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
         // Uploads a single local file to the specified directory on the MTP device.
-        // Returns: true if the upload succeeded; false if an error occurred.
+        // Retries up to maxRetries times on failure, waiting retryDelaySeconds between attempts.
+        // Returns: true if the upload succeeded; false if all attempts failed.
         public static bool UploadToMtp(
-            MediaDevice device,   // the connected MTP device.
-            string localFilePath, // full local path of the file to upload.
-            string mtpDestDir,    // destination directory path on the MTP device.
-            string fileName)      // name the file will have on the device.
+            MediaDevice device,        // the connected MTP device.
+            string localFilePath,      // full local path of the file to upload.
+            string mtpDestDir,         // destination directory path on the MTP device.
+            string fileName,           // name the file will have on the device.
+            int maxRetries = 0,        // number of additional attempts after the first failure.
+            int retryDelaySeconds = 5) // seconds to wait between retries.
         {
             string mtpFilePath = mtpDestDir.TrimEnd('\\') + "\\" + fileName;
-            try
+            Console.WriteLine($"UPLOAD -> {mtpFilePath}");
+
+            for (int attempt = 1; attempt <= maxRetries + 1; attempt++)
             {
-                Console.WriteLine($"UPLOAD -> {mtpFilePath}");
-                device.UploadFile(localFilePath, mtpFilePath);
-                return true;
+                try
+                {
+                    device.UploadFile(localFilePath, mtpFilePath);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    bool isLastAttempt = attempt > maxRetries;
+                    if (isLastAttempt)
+                    {
+                        WriteError($"Error uploading {fileName} (attempt {attempt}/{maxRetries + 1}): {ex.Message}");
+                        return false;
+                    }
+
+                    WriteWarning($"Upload failed (attempt {attempt}/{maxRetries + 1}), retrying in {retryDelaySeconds}s... ({ex.Message})");
+                    System.Threading.Thread.Sleep(retryDelaySeconds * 1000);
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error uploading {fileName}: {ex.Message}");
-                return false;
-            }
+
+            return false;
         }
 
         // Checks whether a local file needs to be uploaded to the Switch and uploads it if so.
@@ -42,16 +74,20 @@ namespace CopyUpdates
         // In -all mode, base games are also uploaded, but only when they are not already installed.
         // Returns: true if the file was uploaded successfully; false if it was skipped or an error occurred.
         public static bool UploadFileIfNeeded(
-            MediaDevice device,                       // the connected MTP device.
-            string localFile,                         // full local path of the file to potentially upload.
-            string mtpDestPath,                       // destination directory path on the MTP device.
-            HashSet<string> installedPrefixes,        // set of 12-character title ID prefixes for games installed on the Switch.
-            Dictionary<string, int> switchContentMap, // map of exact title IDs to the highest version currently installed on the Switch.
-            bool uploadAll = false)                   // when true, base games are also uploaded if not already installed.
+            MediaDevice device,
+            string localFile,
+            string mtpDestPath,
+            HashSet<string> installedPrefixes,
+            Dictionary<string, int> switchContentMap,
+            bool uploadAll = false)
         {
             var fi = new FileInfo(localFile);
             if (fi.Length == 0)
             {
+                if (Verbose)
+                {
+                    Console.WriteLine($"  SKIP (empty file): {Path.GetFileName(localFile)}");
+                }
                 return false;
             }
 
@@ -60,37 +96,53 @@ namespace CopyUpdates
 
             if (string.IsNullOrEmpty(fid))
             {
+                if (Verbose)
+                {
+                    Console.WriteLine($"  SKIP (no title ID): {fileName}");
+                }
                 return false;
             }
 
-            // In normal mode, skip base games entirely.
-            // In -all mode, upload the base game only if it is not already installed on the Switch.
             if (IsBaseGame(fid))
             {
                 if (!uploadAll)
                 {
+                    if (Verbose)
+                    {
+                        Console.WriteLine($"  SKIP (base game, use -all to include): {fileName}");
+                    }
                     return false;
                 }
 
                 if (switchContentMap.ContainsKey(fid))
                 {
+                    if (Verbose)
+                    {
+                        Console.WriteLine($"  SKIP (base game already installed): {fileName}");
+                    }
                     return false;
                 }
 
                 return UploadToMtp(device, localFile, mtpDestPath, fileName);
             }
 
-            // Update / DLC: skip if the game is not installed on the Switch
             string prefix = GetTitlePrefix(fid);
             if (!installedPrefixes.Contains(prefix))
             {
+                if (Verbose)
+                {
+                    Console.WriteLine($"  SKIP (game not installed on Switch, prefix={prefix}): {fileName}");
+                }
                 return false;
             }
 
-            // Skip if the Switch already has this version or a newer one
             int localVer = getVersion(fileName);
             if (switchContentMap.TryGetValue(fid, out int switchVer) && switchVer >= localVer)
             {
+                if (Verbose)
+                {
+                    Console.WriteLine($"  SKIP (Switch has v{switchVer} >= local v{localVer}): {fileName}");
+                }
                 return false;
             }
 
@@ -128,7 +180,7 @@ namespace CopyUpdates
             var task = Task.Run(() => device.EnumerateFiles(path).ToList());
             if (!task.Wait(TimeSpan.FromSeconds(timeoutSeconds)))
             {
-                Console.WriteLine($"\nTimeout ({timeoutSeconds}s) listing files in: {path} — skipping.");
+                WriteWarning($"\nTimeout ({timeoutSeconds}s) listing files in: {path} — skipping.");
                 return null;
             }
             if (task.IsFaulted)
@@ -148,7 +200,7 @@ namespace CopyUpdates
             var task = Task.Run(() => device.EnumerateDirectories(path).ToList());
             if (!task.Wait(TimeSpan.FromSeconds(timeoutSeconds)))
             {
-                Console.WriteLine($"\nTimeout ({timeoutSeconds}s) listing directories in: {path} — skipping.");
+                WriteWarning($"\nTimeout ({timeoutSeconds}s) listing directories in: {path} — skipping.");
                 return null;
             }
             if (task.IsFaulted)
@@ -187,7 +239,7 @@ namespace CopyUpdates
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error downloading {fileName}: {ex.Message}");
+                WriteError($"Error downloading {fileName}: {ex.Message}");
                 try
                 {
                     if (File.Exists(localDestPath))

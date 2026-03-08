@@ -9,6 +9,10 @@ namespace CopyUpdates
 
     partial class Program
     {
+        // When true, prints a reason for every skipped file during upload.
+        // Enabled by passing -verbose on the command line.
+        private static bool Verbose = false;
+
         // Entry point of the application.
         // Parses command-line arguments or prompts the user interactively, then runs the appropriate sync mode.
         // In MTP mode, the direction (push vs pull) is inferred from whether the origin path starts with a backslash.
@@ -209,7 +213,7 @@ namespace CopyUpdates
         }
 
         // Parses the command-line arguments into individual settings used to control the sync operation.
-        // Returns: a tuple containing originPath, destinationPath, and compareMode.
+        // Returns: a tuple containing originPath, destinationPath, compareMode, and uploadAll.
         static (string originPath, string destinationPath, bool compareMode, bool uploadAll) ParseCommandLineArguments(
             string[] args) // the array of command-line argument strings.
         {
@@ -249,6 +253,11 @@ namespace CopyUpdates
                         uploadAll = true;
                         break;
 
+                    case "-verbose":
+                    case "--verbose":
+                        Verbose = true;
+                        break;
+
                     case "-h":
                     case "--help":
                         ShowHelp();
@@ -282,6 +291,7 @@ namespace CopyUpdates
             Console.WriteLine("  -c, --compare      Compare mode: scan for missing or size-mismatched files and replace them");
             Console.WriteLine("  -all, --all        Upload all games to the Switch, not just updates and DLCs");
             Console.WriteLine("                     Base games are copied only when they are not already installed.");
+            Console.WriteLine("  -verbose           Print the reason every skipped file was not uploaded.");
             Console.WriteLine("  -h, --help         Show this help message");
             Console.WriteLine();
             Console.WriteLine("Sync mode (default):");
@@ -303,7 +313,6 @@ namespace CopyUpdates
             Console.WriteLine("Examples:");
             Console.WriteLine("  CopyUpdates.exe -o \"\\4: Installed games\" -d T:\\Backup\\         (Download updates from Switch via DBI: origin starts with \\)");
             Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d \"\\5: SD Card install\"       (Upload updates to Switch via DBI: dest starts with \\)");
-            //Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\                                   (Upload updates to Switch via sphaira: auto-detects paths)");
             Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d C:\\AllMyGames\\               (local: no backslash prefix)");
             Console.WriteLine();
             Console.WriteLine("If no arguments are provided, the application runs in interactive mode.");

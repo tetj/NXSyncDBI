@@ -238,7 +238,7 @@ namespace CopyUpdates
 
             foreach (string localFile in Directory.GetFiles(localOriginPath, "*.*", System.IO.SearchOption.AllDirectories))
             {
-                Console.WriteLine($"\nProcessing file: {localFile}");
+                //Console.WriteLine($"\nProcessing file: {localFile}");
                 if (UploadFileIfNeeded(device, localFile, mtpDestPath, installedPrefixes, switchContentMap, uploadAll))
                 {
                     nbUploaded++;
