@@ -147,8 +147,26 @@ CopyUpdates.exe -o E:\ExtractedTorrents -d "T:\NintendoSwitch\ROMs\"
 - Use this tool to rename all NSP files to a consistent format: https://github.com/tetj/ConvertXciToNsp
 
 # How to have your own local DBI shop (OwnFoil alternative)
-- Follow Quickstart here : https://github.com/notf0und/SGS
-- You should get 11MB/sec transfer speed. If you don't, try forcing 5GHz Wi-Fi (on your router).
+You should get 11MB/sec transfer speed. If you don't, try forcing 5GHz Wi-Fi (on your router).
+### Option 1 : Using python (much simpler than SGS imho)
+On your Switch SD card edit: /switch/dbi/dbi.locations
+
+Add entries pointing to your server.
+
+Example:
+```
+[SwitchLibrary]
+Type=ApacheHTTP
+Url=http://192.168.1.15:8030/
+```
+Then on your PC :
+```
+cd C:/Nintendo/MyGames
+python -m http.server 8030
+```
+
+### Option 2 : Using SGS
+- Use this guide : https://github.com/notf0und/SGS
 
 ### Note about the file organization :
 - You will have to put your NSP files in the SGS **/games** folder. 
