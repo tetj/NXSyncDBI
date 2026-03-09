@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 namespace CopyUpdates
 {
     // mtpmount-x64.exe mount Switch "4: Installed games" Y:
@@ -111,8 +106,7 @@ namespace CopyUpdates
                 }
 
                 // Get list of folders in origin
-                List<string> originFolders = new List<string>();
-                originFolders.AddRange(Directory.GetDirectories(originPath));
+                List<string> originFolders = [.. Directory.GetDirectories(originPath)];
 
                 if (compareMode)
                 {

@@ -1,11 +1,5 @@
 ﻿using MediaDevices;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace CopyUpdates
 {
@@ -151,7 +145,7 @@ namespace CopyUpdates
                 // DBI MTP mode exposes installed games as named directories (e.g. "Game [01004D300C5C6000] [v0]")
                 // rather than as NSP files. Extract title IDs from directory names first, then also from
                 // any files found inside, to cover both DBI-style and NSP-file-based organizations.
-                foreach (string mtpGameFolder in TryEnumerateMtpDirectories(device, mtpRefPath) ?? new List<string>())
+                foreach (string mtpGameFolder in TryEnumerateMtpDirectories(device, mtpRefPath) ?? [])
                 {
                     try
                     {

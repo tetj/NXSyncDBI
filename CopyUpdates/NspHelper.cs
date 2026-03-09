@@ -1,7 +1,4 @@
 using Microsoft.VisualBasic.FileIO;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace CopyUpdates
 {
