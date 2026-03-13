@@ -64,7 +64,7 @@ First, we need to download updates, then we will upload them on the Switch (see 
 - Check the README file and `settings.json` file for more details about the configuration
 - Scan your library
 - Check the Updates tab
-- Check your favorite websites for updates (I recommend : runtracker, iptorrents, torrentday, Ziperto)
+- Check your favorite websites for updates (such as runtracker, iptorrents, torrentday, Ziperto)
 - When opening the `.torrent`, check that the version number in the filename matches the latest available version listed in Switch-Library-Manager
 
 # How to copy your games/updates to your Switch
