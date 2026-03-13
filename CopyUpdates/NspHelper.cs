@@ -4,17 +4,36 @@ namespace CopyUpdates
 {
     partial class Program
     {
-        // Extracts the bracketed ID from a filename, e.g. "[0100XXXXXXXX0000]" → "0100XXXXXXXX0000".
-        // Returns: the content inside the first pair of brackets, or null if none is found.
+        // Extracts the Nintendo Switch title ID from a filename.
+        // A title ID is exactly 16 hexadecimal characters enclosed in brackets, e.g. "[0100E05011351003]".
+        // Scans all bracketed segments so that descriptive labels such as "[DLC Asia Expansion]"
+        // that appear before the ID are correctly skipped.
+        // Returns: the 16-character hex title ID, or null if none is found.
         private static string getId(
             string s) // the filename string to search within.
         {
-            int start = s.IndexOf('[');
-            int end = s.IndexOf(']', start + 1);
-
-            if (start >= 0 && end > start)
+            int searchFrom = 0;
+            while (true)
             {
-                return s.Substring(start + 1, end - start - 1);
+                int start = s.IndexOf('[', searchFrom);
+                if (start < 0)
+                {
+                    break;
+                }
+
+                int end = s.IndexOf(']', start + 1);
+                if (end < 0)
+                {
+                    break;
+                }
+
+                string candidate = s.Substring(start + 1, end - start - 1);
+                if (candidate.Length == 16 && candidate.All(c => Uri.IsHexDigit(c)))
+                {
+                    return candidate;
+                }
+
+                searchFrom = end + 1;
             }
             return null;
         }
