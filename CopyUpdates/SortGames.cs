@@ -5,7 +5,7 @@ namespace CopyUpdates
     internal class SortGames
     {
         private const string InstalledFolderName = "_Installed";
-        private const string UninstalledFolderName = "_Uninstalled";
+        private const string UninstalledFolderName = "_NotInstalled";
 
         // Connects to the MTP device, scans mtpOriginPath for installed games, then moves every
         // recognized game file under destinationPath into the correct _Installed or _Uninstalled subfolder.
@@ -91,9 +91,11 @@ namespace CopyUpdates
 
         // Computes the target path for a file based on its installed status.
         // Scans each directory segment in the relative path for an install-status folder name
-        // (e.g. "_Installed", "_NotInstalled", "_Uninstalled"). When found and the status is
-        // wrong, replaces that segment with the correct folder name and returns the new full path.
-        // Returns null when no install-status segment is found or the file is already in the right place.
+        // (e.g. "_Installed", "_NotInstalled"). When found and the status is wrong, replaces that
+        // segment with the correct folder name and returns the new full path.
+        // When no install-status segment is found, moves the file into a _Installed or _NotInstalled
+        // subfolder under its current directory.
+        // Returns null when the file is already in the right place.
         private static string ComputeNewFilePath(string filePath, string rootPath, bool isInstalled)
         {
             string relativePath = Path.GetRelativePath(rootPath, filePath);
@@ -114,7 +116,10 @@ namespace CopyUpdates
                 }
             }
 
-            return null;
+            // No install-status folder found in the path: place the file into _Installed or
+            // _NotInstalled directly under its current directory.
+            string targetFolder = isInstalled ? InstalledFolderName : UninstalledFolderName;
+            return Path.Combine(Path.GetDirectoryName(filePath), targetFolder, Path.GetFileName(filePath));
         }
 
         // Determines whether a folder name represents an install-status folder.

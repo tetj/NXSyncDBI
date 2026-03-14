@@ -47,7 +47,7 @@ namespace CopyUpdates
                 }
             }
 
-            // Sort mode: reorganize local games into _Installed / _Uninstalled based on what is on the Switch.
+            // Sort mode: reorganize local games into _Installed / _NotInstalled based on what is on the Switch.
             if (sortMode)
             {
                 try
@@ -301,7 +301,7 @@ namespace CopyUpdates
             Console.WriteLine("  -c, --compare      Compare mode: scan for missing or size-mismatched files and replace them");
             Console.WriteLine("  -all, --all        Upload all games to the Switch, not just updates and DLCs");
             Console.WriteLine("                     Base games are copied only when they are not already installed.");
-            Console.WriteLine("  -s, --sort         Sort local games into _Installed / _Uninstalled subfolders");
+            Console.WriteLine("  -s, --sort         Sort local games into _Installed / _NotInstalled subfolders");
             Console.WriteLine("                     based on what is currently installed on the Switch (requires -o MTP path and -d local path).");
             Console.WriteLine("  -verbose           Print the reason every skipped file was not uploaded.");
             Console.WriteLine("  -h, --help         Show this help message");
