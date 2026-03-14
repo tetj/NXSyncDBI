@@ -18,11 +18,12 @@ namespace CopyUpdates
             string destinationPath;
             bool compareMode = false;
             bool uploadAll = false;
+            bool sortMode = false;
 
             if (args.Length > 0)
             {
                 // Parse command line arguments
-                (originPath, destinationPath, compareMode, uploadAll) = ParseCommandLineArguments(args);
+                (originPath, destinationPath, compareMode, uploadAll, sortMode) = ParseCommandLineArguments(args);
                 if (string.IsNullOrEmpty(originPath) || string.IsNullOrEmpty(destinationPath))
                 {
                     ShowHelp();
@@ -46,8 +47,28 @@ namespace CopyUpdates
                 }
             }
 
+            // Sort mode: reorganize local games into _Installed / _Uninstalled based on what is on the Switch.
+            if (sortMode)
+            {
+                try
+                {
+                    destinationPath = Path.GetFullPath(destinationPath);
+                }
+                catch
+                {
+                }
+                if (!Directory.Exists(destinationPath))
+                {
+                    Console.WriteLine($"Error: Destination directory does not exist: {destinationPath}");
+                    return;
+                }
+                new SortGames().Run(originPath, destinationPath);
+                WaitForKeyPressIfInteractive(args);
+                return;
+            }
+
             // Auto-detect MTP mode: DBI paths start with a backslash; sphaira paths start with "This PC\".
-            bool mtpMode = originPath.StartsWith(@"\") || destinationPath.StartsWith(@"\")
+            bool mtpMode = originPath.StartsWith(@"\")
                 || originPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase)
                 || destinationPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase);
 
@@ -197,13 +218,14 @@ namespace CopyUpdates
 
         // Parses the command-line arguments into individual settings used to control the sync operation.
         // Returns: a tuple containing originPath, destinationPath, compareMode, and uploadAll.
-        static (string originPath, string destinationPath, bool compareMode, bool uploadAll) ParseCommandLineArguments(
+        static (string originPath, string destinationPath, bool compareMode, bool uploadAll, bool sortMode) ParseCommandLineArguments(
             string[] args) // the array of command-line argument strings.
         {
             string originPath = null;
             string destinationPath = null;
             bool compareMode = false;
             bool uploadAll = false;
+            bool sortMode = false;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -236,6 +258,11 @@ namespace CopyUpdates
                         uploadAll = true;
                         break;
 
+                    case "-s":
+                    case "--sort":
+                        sortMode = true;
+                        break;
+
                     case "-verbose":
                     case "--verbose":
                         Verbose = true;
@@ -244,7 +271,7 @@ namespace CopyUpdates
                     case "-h":
                     case "--help":
                         ShowHelp();
-                        return (null, null, false, false);
+                        return (null, null, false, false, false);
 
                     default:
                         // If not using named parameters, assume first two args are origin and destination
@@ -252,13 +279,13 @@ namespace CopyUpdates
                         {
                             originPath = args[0];
                             destinationPath = args[1];
-                            return (originPath, destinationPath, false, false);
+                            return (originPath, destinationPath, false, false, false);
                         }
                         break;
                 }
             }
 
-            return (originPath, destinationPath, compareMode, uploadAll);
+            return (originPath, destinationPath, compareMode, uploadAll, sortMode);
         }
 
         // Prints usage instructions and all available command-line options to the console.
@@ -274,6 +301,8 @@ namespace CopyUpdates
             Console.WriteLine("  -c, --compare      Compare mode: scan for missing or size-mismatched files and replace them");
             Console.WriteLine("  -all, --all        Upload all games to the Switch, not just updates and DLCs");
             Console.WriteLine("                     Base games are copied only when they are not already installed.");
+            Console.WriteLine("  -s, --sort         Sort local games into _Installed / _Uninstalled subfolders");
+            Console.WriteLine("                     based on what is currently installed on the Switch (requires -o MTP path and -d local path).");
             Console.WriteLine("  -verbose           Print the reason every skipped file was not uploaded.");
             Console.WriteLine("  -h, --help         Show this help message");
             Console.WriteLine();

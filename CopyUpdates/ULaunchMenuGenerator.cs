@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace AgeRatingSorter
+namespace CopyUpdates
 {
     /// <summary>
     /// Scans a real directory structure on your PC and generates the corresponding

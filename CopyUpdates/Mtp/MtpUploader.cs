@@ -128,7 +128,7 @@ namespace CopyUpdates
         }
 
         // Step 1: Scan the MTP device to detect which games are installed and which versions they have
-        private static bool ScanMTP(string mtpRefPath, MediaDevice device, out HashSet<string> installedPrefixes, out Dictionary<string, int> switchContentMap)
+        internal static bool ScanMTP(string mtpRefPath, MediaDevice device, out HashSet<string> installedPrefixes, out Dictionary<string, int> switchContentMap)
         {
             // Step 1: Scan installed games on the Switch
             Console.WriteLine($"Scanning installed games at {mtpRefPath}...");

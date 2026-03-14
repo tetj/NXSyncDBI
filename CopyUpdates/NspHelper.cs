@@ -9,7 +9,7 @@ namespace CopyUpdates
         // Scans all bracketed segments so that descriptive labels such as "[DLC Asia Expansion]"
         // that appear before the ID are correctly skipped.
         // Returns: the 16-character hex title ID, or null if none is found.
-        private static string getId(
+        internal static string getId(
             string s) // the filename string to search within.
         {
             int searchFrom = 0;
@@ -77,7 +77,7 @@ namespace CopyUpdates
         // This prefix is shared between a base game, its updates, and its DLCs,
         // and is used to group or match related content across different ID variants.
         // Returns: the first 12 characters of titleId, or the full string if it is shorter than 12 characters.
-        private static string GetTitlePrefix(
+        internal static string GetTitlePrefix(
             string titleId) // the title ID string to truncate.
         {
             if (titleId != null && titleId.Length >= 12)
