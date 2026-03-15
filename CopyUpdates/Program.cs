@@ -286,7 +286,7 @@ namespace CopyUpdates
                         break;
 
                     case "-f":
-                    case "--folders":
+                    case "--flatten":
                         flattenMode = true;
                         if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
                         {
@@ -334,7 +334,7 @@ namespace CopyUpdates
             Console.WriteLine("                     Base games are copied only when they are not already installed.");
             Console.WriteLine("  -s, --sort         Sort local games into _Installed / _NotInstalled subfolders");
             Console.WriteLine("                     based on what is currently installed on the Switch (requires -o MTP path and -d local path).");
-            Console.WriteLine("  -f, --folders      Move base and update files out of game subfolders into their _Installed or _NotInstalled parent.");
+            Console.WriteLine("  -f, --flatten      Move base and update files out of game subfolders into their _Installed or _NotInstalled parent.");
             Console.WriteLine("                     DLC files are left in place. Requires -d <path>.");
             Console.WriteLine("  -verbose           Print the reason every skipped file was not uploaded.");
             Console.WriteLine("  -h, --help         Show this help message");
