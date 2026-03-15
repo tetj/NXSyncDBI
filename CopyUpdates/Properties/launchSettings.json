@@ -2,7 +2,7 @@
   "profiles": {
     "CopyUpdates": {
       "commandName": "Project",
-      "commandLineArgs": " -f \"T:\\\\BACKUPS\\\\NintendoSwitch 554GB\\\\_NEW\\\\titles\\\\COOP\\\\MATURE\""
+      "commandLineArgs": " -f \"T:\\\\BACKUPS\\\\NintendoSwitch3TB\\\\titles\""
     }
   }
 }

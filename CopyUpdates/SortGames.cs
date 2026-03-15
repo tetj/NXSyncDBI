@@ -43,6 +43,7 @@ namespace CopyUpdates
                     string ext = Path.GetExtension(filePath);
                     if (!IsGameFile(ext))
                     {
+                        Console.WriteLine($"SKIP (not game file): {Path.GetFileName(filePath)}");
                         continue;
                     }
 
@@ -50,6 +51,7 @@ namespace CopyUpdates
                     string fid = Program.getId(fileName);
                     if (string.IsNullOrEmpty(fid))
                     {
+                        Console.WriteLine($"SKIP (no title ID): {fileName}");
                         continue;
                     }
 
@@ -210,11 +212,12 @@ namespace CopyUpdates
             int movedCount = 0;
             var sourceDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (string filePath in gameFiles)
+            foreach (string filePath in gameFiles)  
             {
                 string ext = Path.GetExtension(filePath);
                 if (!IsGameFile(ext))
                 {
+                    Console.WriteLine($"SKIP (not game file): {Path.GetFileName(filePath)}");
                     continue;
                 }
 
@@ -222,12 +225,14 @@ namespace CopyUpdates
                 string fid = Program.getId(fileName);
                 if (string.IsNullOrEmpty(fid))
                 {
+                    Console.WriteLine($"SKIP (no title ID): {fileName}");
                     continue;
                 }
 
                 // Only move base games and updates; leave DLC files in place.
                 if (!IsBaseOrUpdate(fid))
                 {
+                    Console.WriteLine($"SKIP (DLC [{fid}]): {fileName}");
                     continue;
                 }
 
@@ -235,12 +240,14 @@ namespace CopyUpdates
                 string installFolder = FindInstallStatusFolder(fileDir);
                 if (installFolder == null)
                 {
+                    Console.WriteLine($"SKIP (no install-status parent): {fileName}");
                     continue;
                 }
 
                 // Already directly in the _Installed or _NotInstalled folder — nothing to do.
                 if (string.Equals(fileDir, installFolder, StringComparison.OrdinalIgnoreCase))
                 {
+                    Console.WriteLine($"SKIP (already flat): {fileName}");
                     continue;
                 }
 
@@ -262,14 +269,23 @@ namespace CopyUpdates
 
             Console.WriteLine($"\n{movedCount} file(s) moved.");
 
-            // Use the install-status folder itself as the cleanup boundary so game subfolders
-            // that become empty are recycled but the _Installed / _NotInstalled folder is kept.
-            string cleanupRoot = FindInstallStatusFolder(path) ?? path;
+            // Use the nearest install-status folder that is AT OR BELOW path as the cleanup boundary,
+            // so that game subfolders emptied by the move are recycled but the _Installed /
+            // _NotInstalled folder itself is kept. Searching only within path (not above it) prevents
+            // an ancestor directory whose name contains "install" from being used as the boundary,
+            // which could otherwise allow the cleanup walk to delete path itself.
+            string installFolderWithinPath = path != null && TryClassifyInstallFolder(Path.GetFileName(path), out _)
+                ? path
+                : null;
+            string cleanupRoot = installFolderWithinPath ?? path;
             RemoveEmptyFolders(sourceDirectories, cleanupRoot);
         }
 
-        // Returns true when the title ID belongs to a base game (ends with 0000) or an update (ends with 0800).
+        // Returns true when the title ID belongs to a base game (last 3 hex digits are 000) or an update (last 3 are 800).
         // DLC title IDs end with any other suffix and return false.
+        // Example: 010021C000B6A000 → last 3 = "000" → base game.
+        //          010021C000B6A800 → last 3 = "800" → update.
+        //          010021C000B6A001 → last 3 = "001" → DLC.
         private static bool IsBaseOrUpdate(string titleId)
         {
             if (titleId == null || titleId.Length != 16)
@@ -277,9 +293,9 @@ namespace CopyUpdates
                 return false;
             }
 
-            string suffix = titleId.Substring(12, 4);
-            return suffix.Equals("0000", StringComparison.OrdinalIgnoreCase)
-                || suffix.Equals("0800", StringComparison.OrdinalIgnoreCase);
+            string suffix = titleId.Substring(13, 3);
+            return suffix.Equals("000", StringComparison.OrdinalIgnoreCase)
+                || suffix.Equals("800", StringComparison.OrdinalIgnoreCase);
         }
 
         // Walks up the directory tree from startDir and returns the first folder whose name
