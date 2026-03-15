@@ -288,6 +288,10 @@ namespace CopyUpdates
                     case "-f":
                     case "--folders":
                         flattenMode = true;
+                        if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+                        {
+                            destinationPath = args[++i];
+                        }
                         break;
 
                     case "-verbose":
