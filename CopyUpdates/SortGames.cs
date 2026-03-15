@@ -1,4 +1,5 @@
 ﻿using MediaDevices;
+using Microsoft.VisualBasic.FileIO;
 
 namespace CopyUpdates
 {
@@ -33,8 +34,9 @@ namespace CopyUpdates
 
                 Console.WriteLine($"Sorting games in: {destinationPath}");
 
-                string[] gameFiles = Directory.GetFiles(destinationPath, "*.*", SearchOption.AllDirectories);
+                string[] gameFiles = Directory.GetFiles(destinationPath, "*.*", System.IO.SearchOption.AllDirectories);
                 int movedCount = 0;
+                var sourceDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (string filePath in gameFiles)
                 {
@@ -67,6 +69,7 @@ namespace CopyUpdates
                         Console.WriteLine($"MOVED: {filePath}");
                         Console.WriteLine($"   TO: {newFilePath}");
                         movedCount++;
+                        sourceDirectories.Add(Path.GetDirectoryName(filePath));
                     }
                     catch (Exception ex)
                     {
@@ -75,6 +78,7 @@ namespace CopyUpdates
                 }
 
                 Console.WriteLine($"\n{movedCount} file(s) moved.");
+                RemoveEmptyFolders(sourceDirectories, destinationPath);
             }
             finally
             {
@@ -138,6 +142,55 @@ namespace CopyUpdates
 
             isInstalled = false;
             return false;
+        }
+
+        // For each source directory, walks up the tree toward rootPath and sends to the Recycle Bin
+        // any folder that is effectively empty (contains no files at any depth).
+        // Processes deepest directories first so that emptied parents are caught in the same pass.
+        private static void RemoveEmptyFolders(HashSet<string> sourceDirectories, string rootPath)
+        {
+            int removedCount = 0;
+
+            foreach (string sourceDir in sourceDirectories.OrderByDescending(d => d.Length))
+            {
+                string current = sourceDir;
+                while (current != null
+                    && !string.Equals(current, rootPath, StringComparison.OrdinalIgnoreCase)
+                    && current.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!Directory.Exists(current) || !IsEffectivelyEmpty(current))
+                    {
+                        break;
+                    }
+
+                    string parent = Path.GetDirectoryName(current);
+                    try
+                    {
+                        FileSystem.DeleteDirectory(current, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                        Console.WriteLine($"REMOVED empty folder: {current}");
+                        removedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error removing folder {current}: {ex.Message}");
+                        break;
+                    }
+
+                    current = parent;
+                }
+            }
+
+            if (removedCount > 0)
+            {
+                Console.WriteLine($"{removedCount} empty folder(s) sent to Recycle Bin.");
+            }
+        }
+
+        // Returns true when the directory contains no files at any depth.
+        // Directories that hold only empty subdirectories are considered empty.
+        private static bool IsEffectivelyEmpty(string path)
+        {
+            return !Directory.EnumerateFiles(path, "*", System.IO.SearchOption.AllDirectories).Any();
         }
     }
 }
