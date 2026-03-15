@@ -192,6 +192,114 @@ namespace CopyUpdates
         {
             return !Directory.EnumerateFiles(path, "*", System.IO.SearchOption.AllDirectories).Any();
         }
+
+        // Moves base game and update files out of game subfolders and into their _Installed or
+        // _NotInstalled parent folder. DLC files are left in place. Files already sitting directly
+        // inside the install-status folder are skipped. Empty game subfolders are sent to the Recycle Bin.
+        public void FlattenFolders(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Console.WriteLine($"Error: Directory does not exist: {path}");
+                return;
+            }
+
+            Console.WriteLine($"Flattening folders in: {path}");
+
+            string[] gameFiles = Directory.GetFiles(path, "*.*", System.IO.SearchOption.AllDirectories);
+            int movedCount = 0;
+            var sourceDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string filePath in gameFiles)
+            {
+                string ext = Path.GetExtension(filePath);
+                if (!IsGameFile(ext))
+                {
+                    continue;
+                }
+
+                string fileName = Path.GetFileName(filePath);
+                string fid = Program.getId(fileName);
+                if (string.IsNullOrEmpty(fid))
+                {
+                    continue;
+                }
+
+                // Only move base games and updates; leave DLC files in place.
+                if (!IsBaseOrUpdate(fid))
+                {
+                    continue;
+                }
+
+                string fileDir = Path.GetDirectoryName(filePath);
+                string installFolder = FindInstallStatusFolder(fileDir);
+                if (installFolder == null)
+                {
+                    continue;
+                }
+
+                // Already directly in the _Installed or _NotInstalled folder — nothing to do.
+                if (string.Equals(fileDir, installFolder, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string newFilePath = Path.Combine(installFolder, fileName);
+
+                try
+                {
+                    File.Move(filePath, newFilePath);
+                    Console.WriteLine($"MOVED: {filePath}");
+                    Console.WriteLine($"   TO: {newFilePath}");
+                    movedCount++;
+                    sourceDirectories.Add(fileDir);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error moving {fileName}: {ex.Message}");
+                }
+            }
+
+            Console.WriteLine($"\n{movedCount} file(s) moved.");
+
+            // Use the install-status folder itself as the cleanup boundary so game subfolders
+            // that become empty are recycled but the _Installed / _NotInstalled folder is kept.
+            string cleanupRoot = FindInstallStatusFolder(path) ?? path;
+            RemoveEmptyFolders(sourceDirectories, cleanupRoot);
+        }
+
+        // Returns true when the title ID belongs to a base game (ends with 0000) or an update (ends with 0800).
+        // DLC title IDs end with any other suffix and return false.
+        private static bool IsBaseOrUpdate(string titleId)
+        {
+            if (titleId == null || titleId.Length != 16)
+            {
+                return false;
+            }
+
+            string suffix = titleId.Substring(12, 4);
+            return suffix.Equals("0000", StringComparison.OrdinalIgnoreCase)
+                || suffix.Equals("0800", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Walks up the directory tree from startDir and returns the first folder whose name
+        // matches the install-status pattern (_Installed, _NotInstalled, etc.).
+        // Returns null when no such folder is found.
+        private static string FindInstallStatusFolder(string startDir)
+        {
+            string current = startDir;
+            while (current != null)
+            {
+                if (TryClassifyInstallFolder(Path.GetFileName(current), out _))
+                {
+                    return current;
+                }
+
+                current = Path.GetDirectoryName(current);
+            }
+
+            return null;
+        }
     }
 }
 

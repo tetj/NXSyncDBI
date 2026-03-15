@@ -19,12 +19,13 @@ namespace CopyUpdates
             bool compareMode = false;
             bool uploadAll = false;
             bool sortMode = false;
+            bool flattenMode = false;
 
             if (args.Length > 0)
             {
                 // Parse command line arguments
-                (originPath, destinationPath, compareMode, uploadAll, sortMode) = ParseCommandLineArguments(args);
-                if (string.IsNullOrEmpty(originPath) || string.IsNullOrEmpty(destinationPath))
+                (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode) = ParseCommandLineArguments(args);
+                if (string.IsNullOrEmpty(destinationPath) || (!sortMode && !flattenMode && string.IsNullOrEmpty(originPath)))
                 {
                     ShowHelp();
                     return;
@@ -63,6 +64,26 @@ namespace CopyUpdates
                     return;
                 }
                 new SortGames().Run(originPath, destinationPath);
+                WaitForKeyPressIfInteractive(args);
+                return;
+            }
+
+            // Flatten mode: move base and update files out of game subfolders into their _Installed / _NotInstalled parent.
+            if (flattenMode)
+            {
+                try
+                {
+                    destinationPath = Path.GetFullPath(destinationPath);
+                }
+                catch
+                {
+                }
+                if (!Directory.Exists(destinationPath))
+                {
+                    Console.WriteLine($"Error: Destination directory does not exist: {destinationPath}");
+                    return;
+                }
+                new SortGames().FlattenFolders(destinationPath);
                 WaitForKeyPressIfInteractive(args);
                 return;
             }
@@ -217,8 +238,8 @@ namespace CopyUpdates
         }
 
         // Parses the command-line arguments into individual settings used to control the sync operation.
-        // Returns: a tuple containing originPath, destinationPath, compareMode, and uploadAll.
-        static (string originPath, string destinationPath, bool compareMode, bool uploadAll, bool sortMode) ParseCommandLineArguments(
+        // Returns: a tuple containing originPath, destinationPath, compareMode, uploadAll, sortMode, and flattenMode.
+        static (string originPath, string destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode) ParseCommandLineArguments(
             string[] args) // the array of command-line argument strings.
         {
             string originPath = null;
@@ -226,6 +247,7 @@ namespace CopyUpdates
             bool compareMode = false;
             bool uploadAll = false;
             bool sortMode = false;
+            bool flattenMode = false;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -263,6 +285,11 @@ namespace CopyUpdates
                         sortMode = true;
                         break;
 
+                    case "-f":
+                    case "--folders":
+                        flattenMode = true;
+                        break;
+
                     case "-verbose":
                     case "--verbose":
                         Verbose = true;
@@ -271,7 +298,7 @@ namespace CopyUpdates
                     case "-h":
                     case "--help":
                         ShowHelp();
-                        return (null, null, false, false, false);
+                        return (null, null, false, false, false, false);
 
                     default:
                         // If not using named parameters, assume first two args are origin and destination
@@ -279,13 +306,13 @@ namespace CopyUpdates
                         {
                             originPath = args[0];
                             destinationPath = args[1];
-                            return (originPath, destinationPath, false, false, false);
+                            return (originPath, destinationPath, false, false, false, false);
                         }
                         break;
                 }
             }
 
-            return (originPath, destinationPath, compareMode, uploadAll, sortMode);
+            return (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode);
         }
 
         // Prints usage instructions and all available command-line options to the console.
@@ -303,6 +330,8 @@ namespace CopyUpdates
             Console.WriteLine("                     Base games are copied only when they are not already installed.");
             Console.WriteLine("  -s, --sort         Sort local games into _Installed / _NotInstalled subfolders");
             Console.WriteLine("                     based on what is currently installed on the Switch (requires -o MTP path and -d local path).");
+            Console.WriteLine("  -f, --folders      Move base and update files out of game subfolders into their _Installed or _NotInstalled parent.");
+            Console.WriteLine("                     DLC files are left in place. Requires -d <path>.");
             Console.WriteLine("  -verbose           Print the reason every skipped file was not uploaded.");
             Console.WriteLine("  -h, --help         Show this help message");
             Console.WriteLine();
