@@ -195,15 +195,3 @@ docker compose up -d
 - [Importing Switch NSP guide](https://github.com/tetj/BonusTools/blob/main/documentation/ImportingSwitchNSP.md)
 - [Playnite guide](https://github.com/tetj/BonusTools/blob/main/documentation/Playnite.docx?raw=1)
 
-# How to compress all your .nsp files to .nsz 
-This should save space on your PC + faster transfer speed when copying files to your Switch.
-```
-Get-ChildItem "T:\NintendoSwitch\ROMs\" -Filter *.nsp -Recurse | ForEach-Object {
-
-    $nsp = $_.FullName
-    $nsz = [System.IO.Path]::ChangeExtension($nsp, ".nsz")
-
-    & ".\squirrel.exe" -cpr "$nsp" -o "$($_.DirectoryName)" -threads 8
-}
-
-```
