@@ -21,12 +21,13 @@ namespace CopyUpdates
             bool sortMode = false;
             bool flattenMode = false;
             bool tagMode = false;
+            string matchFolderName = null;
 
             if (args.Length > 0)
             {
                 // Parse command line arguments
-                (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode) = ParseCommandLineArguments(args);
-                if (string.IsNullOrEmpty(destinationPath) || (!sortMode && !flattenMode && !tagMode && string.IsNullOrEmpty(originPath)))
+                (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName) = ParseCommandLineArguments(args);
+                if (string.IsNullOrEmpty(destinationPath) || (!sortMode && !flattenMode && !tagMode && string.IsNullOrEmpty(matchFolderName) && string.IsNullOrEmpty(originPath)))
                 {
                     ShowHelp();
                     return;
@@ -69,7 +70,7 @@ namespace CopyUpdates
                 return;
             }
 
-            // Flatten mode: move base and update files out of game subfolders into their _Installed / _NotInstalled parent.
+            // Flatten mode: move base and update files out of game subfolders into the closest underscore-prefixed parent.
             if (flattenMode)
             {
                 try
@@ -105,6 +106,26 @@ namespace CopyUpdates
                     return;
                 }
                 new SortGames().TagFiles(destinationPath);
+                WaitForKeyPressIfInteractive(args);
+                return;
+            }
+
+            // Match mode: find all folders named matchFolderName under destination and move non-installed games to _NotInstalled.
+            if (!string.IsNullOrEmpty(matchFolderName))
+            {
+                try
+                {
+                    destinationPath = Path.GetFullPath(destinationPath);
+                }
+                catch
+                {
+                }
+                if (!Directory.Exists(destinationPath))
+                {
+                    Console.WriteLine($"Error: Destination directory does not exist: {destinationPath}");
+                    return;
+                }
+                new SortGames().RunMatchFolder(originPath, destinationPath, matchFolderName);
                 WaitForKeyPressIfInteractive(args);
                 return;
             }
@@ -259,8 +280,8 @@ namespace CopyUpdates
         }
 
         // Parses the command-line arguments into individual settings used to control the sync operation.
-        // Returns: a tuple containing originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, and tagMode.
-        static (string originPath, string destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode, bool tagMode) ParseCommandLineArguments(
+        // Returns: a tuple containing originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, and matchFolderName.
+        static (string originPath, string destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode, bool tagMode, string matchFolderName) ParseCommandLineArguments(
             string[] args) // the array of command-line argument strings.
         {
             string originPath = null;
@@ -270,6 +291,7 @@ namespace CopyUpdates
             bool sortMode = false;
             bool flattenMode = false;
             bool tagMode = false;
+            string matchFolderName = null;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -325,6 +347,14 @@ namespace CopyUpdates
                         }
                         break;
 
+                    case "-m":
+                    case "--match":
+                        if (i + 1 < args.Length)
+                        {
+                            matchFolderName = args[++i];
+                        }
+                        break;
+
                     case "-verbose":
                     case "--verbose":
                         Verbose = true;
@@ -333,7 +363,7 @@ namespace CopyUpdates
                     case "-h":
                     case "--help":
                         ShowHelp();
-                        return (null, null, false, false, false, false, false);
+                        return (null, null, false, false, false, false, false, null);
 
                     default:
                         // If not using named parameters, assume first two args are origin and destination
@@ -341,13 +371,13 @@ namespace CopyUpdates
                         {
                             originPath = args[0];
                             destinationPath = args[1];
-                            return (originPath, destinationPath, false, false, false, false, false);
+                            return (originPath, destinationPath, false, false, false, false, false, null);
                         }
                         break;
                 }
             }
 
-            return (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode);
+            return (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName);
         }
 
         // Prints usage instructions and all available command-line options to the console.
@@ -365,7 +395,10 @@ namespace CopyUpdates
             Console.WriteLine("                     Base games are copied only when they are not already installed.");
             Console.WriteLine("  -s, --sort         Sort local games into _Installed / _NotInstalled subfolders");
             Console.WriteLine("                     based on what is currently installed on the Switch (requires -o MTP path and -d local path).");
-            Console.WriteLine("  -f, --flatten      Move base and update files out of game subfolders into their _Installed or _NotInstalled parent.");
+            Console.WriteLine("  -m, --match        Find all subfolders named <name> inside -d and move games not found on the Switch");
+            Console.WriteLine("                     to a _NotInstalled sibling folder. Installed games stay where they are.");
+            Console.WriteLine("                     Requires -o MTP path and -d local path. Example: -m _SDCARD1");
+            Console.WriteLine("  -f, --flatten      Move base and update files out of game subfolders into the closest parent folder that starts with an underscore.");
             Console.WriteLine("                     DLC files are left in place. Requires -d <path>.");
             Console.WriteLine("  -t, --type         Append [UPD] or [DLC] to filenames missing a content-type tag.");
             Console.WriteLine("                     BASE files (title ID ends in 000) are left unchanged. Requires -d <path>.");

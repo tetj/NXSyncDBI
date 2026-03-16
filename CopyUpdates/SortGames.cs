@@ -9,7 +9,7 @@ namespace CopyUpdates
         private const string UninstalledFolderName = "_NotInstalled";
 
         // Connects to the MTP device, scans mtpOriginPath for installed games, then moves every
-        // recognized game file under destinationPath into the correct _Installed or _Uninstalled subfolder.
+        // recognized game file under destinationPath into the correct _Installed or _NotInstalled subfolder.
         public void Run(
             string mtpOriginPath,   // MTP path to scan for installed games (e.g. "\4: Installed games").
             string destinationPath) // local root path containing the game files to sort.
@@ -81,6 +81,110 @@ namespace CopyUpdates
 
                 Console.WriteLine($"\n{movedCount} file(s) moved.");
                 RemoveEmptyFolders(sourceDirectories, destinationPath);
+            }
+            finally
+            {
+                device.Disconnect();
+            }
+        }
+
+        // Connects to the MTP device, scans mtpOriginPath for installed games, then searches
+        // destinationPath recursively for every folder named matchFolderName.
+        // For each matching folder, game files whose title ID prefix is NOT found on the Switch
+        // are moved to a _NotInstalled sibling folder (created if absent).
+        // Installed games are left in place.
+        public void RunMatchFolder(
+            string mtpOriginPath,   // MTP path to scan for installed games (e.g. "\4: Installed games").
+            string destinationPath, // local root path to search for folders named matchFolderName.
+            string matchFolderName) // exact folder name to locate within the destinationPath tree.
+        {
+            var allDevices = MediaDevice.GetDevices().ToList();
+            if (allDevices.Count == 0)
+            {
+                Console.WriteLine("No MTP devices found. Make sure your Switch is connected and DBI MTP mode is active.");
+                return;
+            }
+
+            MediaDevice device = allDevices.First();
+            device.Connect();
+            Console.WriteLine($"Connected to: {device.FriendlyName}");
+
+            try
+            {
+                if (!Program.ScanMTP(mtpOriginPath, device, out HashSet<string> installedPrefixes, out _))
+                {
+                    return;
+                }
+
+                List<string> matchedFolders = [.. Directory.GetDirectories(destinationPath, matchFolderName, System.IO.SearchOption.AllDirectories)];
+
+                if (matchedFolders.Count == 0)
+                {
+                    Console.WriteLine($"No folder named '{matchFolderName}' found under {destinationPath}.");
+                    return;
+                }
+
+                Console.WriteLine($"Found {matchedFolders.Count} folder(s) named '{matchFolderName}'.");
+
+                int totalMoved = 0;
+
+                foreach (string matchedFolder in matchedFolders)
+                {
+                    Console.WriteLine($"\nProcessing: {matchedFolder}");
+
+                    string parentFolder = Path.GetDirectoryName(matchedFolder);
+                    string notInstalledFolder = Path.Combine(parentFolder, UninstalledFolderName);
+
+                    string[] gameFiles = Directory.GetFiles(matchedFolder, "*.*", System.IO.SearchOption.AllDirectories);
+                    var sourceDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (string filePath in gameFiles)
+                    {
+                        string ext = Path.GetExtension(filePath);
+                        if (!IsGameFile(ext))
+                        {
+                            Console.WriteLine($"SKIP (not game file): {Path.GetFileName(filePath)}");
+                            continue;
+                        }
+
+                        string fileName = Path.GetFileName(filePath);
+                        string fid = Program.getId(fileName);
+                        if (string.IsNullOrEmpty(fid))
+                        {
+                            Console.WriteLine($"SKIP (no title ID): {fileName}");
+                            continue;
+                        }
+
+                        string prefix = Program.GetTitlePrefix(fid);
+                        bool isInstalled = installedPrefixes.Contains(prefix);
+
+                        if (isInstalled)
+                        {
+                            continue;
+                        }
+
+                        string relativePath = Path.GetRelativePath(matchedFolder, filePath);
+                        string newFilePath = Path.Combine(notInstalledFolder, relativePath);
+
+                        try
+                        {
+                            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
+                            File.Move(filePath, newFilePath);
+                            Console.WriteLine($"MOVED: {filePath}");
+                            Console.WriteLine($"   TO: {newFilePath}");
+                            totalMoved++;
+                            sourceDirectories.Add(Path.GetDirectoryName(filePath));
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error moving {fileName}: {ex.Message}");
+                        }
+                    }
+
+                    RemoveEmptyFolders(sourceDirectories, matchedFolder);
+                }
+
+                Console.WriteLine($"\n{totalMoved} file(s) moved to {UninstalledFolderName}.");
             }
             finally
             {
@@ -276,9 +380,10 @@ namespace CopyUpdates
             Console.WriteLine($"\n{renamedCount} file(s) renamed.");
         }
 
-        // Moves base game and update files out of game subfolders and into their _Installed or
-        // _NotInstalled parent folder. DLC files are left in place. Files already sitting directly
-        // inside the install-status folder are skipped. Empty game subfolders are sent to the Recycle Bin.
+        // Moves base game, update, and small DLC sets out of game subfolders and into the closest parent
+        // folder whose name starts with an underscore. DLC files are moved only when there are fewer than 4
+        // in the same folder; folders with 4 or more DLC files are left untouched. Files already sitting
+        // directly inside an underscore-prefixed folder are skipped. Empty game subfolders are sent to the Recycle Bin.
         public void FlattenFolders(string path)
         {
             if (!Directory.Exists(path))
@@ -292,6 +397,28 @@ namespace CopyUpdates
             string[] gameFiles = Directory.GetFiles(path, "*.*", System.IO.SearchOption.AllDirectories);
             int movedCount = 0;
             var sourceDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Pre-compute the number of DLC files per directory to decide whether to flatten them.
+            var dlcCountPerFolder = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (string filePath in gameFiles)
+            {
+                string ext = Path.GetExtension(filePath);
+                if (!IsGameFile(ext))
+                {
+                    continue;
+                }
+
+                string fileName = Path.GetFileName(filePath);
+                string fid = Program.getId(fileName);
+                if (string.IsNullOrEmpty(fid) || IsBaseOrUpdate(fid))
+                {
+                    continue;
+                }
+
+                string dir = Path.GetDirectoryName(filePath);
+                dlcCountPerFolder.TryGetValue(dir, out int existing);
+                dlcCountPerFolder[dir] = existing + 1;
+            }
 
             foreach (string filePath in gameFiles)  
             {
@@ -310,29 +437,34 @@ namespace CopyUpdates
                     continue;
                 }
 
-                // Only move base games and updates; leave DLC files in place.
+                string fileDir = Path.GetDirectoryName(filePath);
+
+                // If the current folder already starts with _, the file is already in place.
+                if (Path.GetFileName(fileDir).StartsWith("_"))
+                {
+                    Console.WriteLine($"SKIP (already in underscore folder): {fileName}");
+                    continue;
+                }
+
+                // Move DLC files only when there are fewer than 4 in the same folder.
                 if (!IsBaseOrUpdate(fid))
                 {
-                    Console.WriteLine($"SKIP (DLC [{fid}]): {fileName}");
-                    continue;
+                    dlcCountPerFolder.TryGetValue(fileDir, out int dlcCount);
+                    if (dlcCount >= 4)
+                    {
+                        Console.WriteLine($"SKIP (DLC, {dlcCount} in folder): {fileName}");
+                        continue;
+                    }
                 }
 
-                string fileDir = Path.GetDirectoryName(filePath);
-                string installFolder = FindInstallStatusFolder(fileDir);
-                if (installFolder == null)
+                string targetFolder = FindClosestUnderscoreParent(fileDir);
+                if (targetFolder == null)
                 {
-                    Console.WriteLine($"SKIP (no install-status parent): {fileName}");
+                    Console.WriteLine($"SKIP (no underscore parent): {fileName}");
                     continue;
                 }
 
-                // Already directly in the _Installed or _NotInstalled folder — nothing to do.
-                if (string.Equals(fileDir, installFolder, StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine($"SKIP (already flat): {fileName}");
-                    continue;
-                }
-
-                string newFilePath = Path.Combine(installFolder, fileName);
+                string newFilePath = Path.Combine(targetFolder, fileName);
 
                 try
                 {
@@ -350,16 +482,7 @@ namespace CopyUpdates
 
             Console.WriteLine($"\n{movedCount} file(s) moved.");
 
-            // Use the nearest install-status folder that is AT OR BELOW path as the cleanup boundary,
-            // so that game subfolders emptied by the move are recycled but the _Installed /
-            // _NotInstalled folder itself is kept. Searching only within path (not above it) prevents
-            // an ancestor directory whose name contains "install" from being used as the boundary,
-            // which could otherwise allow the cleanup walk to delete path itself.
-            string installFolderWithinPath = path != null && TryClassifyInstallFolder(Path.GetFileName(path), out _)
-                ? path
-                : null;
-            string cleanupRoot = installFolderWithinPath ?? path;
-            RemoveEmptyFolders(sourceDirectories, cleanupRoot);
+            RemoveEmptyFolders(sourceDirectories, path);
         }
 
         // Returns true when the title ID belongs to a base game (last 3 hex digits are 000) or an update (last 3 are 800).
@@ -388,6 +511,24 @@ namespace CopyUpdates
             while (current != null)
             {
                 if (TryClassifyInstallFolder(Path.GetFileName(current), out _))
+                {
+                    return current;
+                }
+
+                current = Path.GetDirectoryName(current);
+            }
+
+            return null;
+        }
+
+        // Walks up the directory tree from startDir (exclusive) and returns the first ancestor
+        // folder whose name starts with an underscore. Returns null when no such folder is found.
+        private static string FindClosestUnderscoreParent(string startDir)
+        {
+            string current = Path.GetDirectoryName(startDir);
+            while (current != null)
+            {
+                if (Path.GetFileName(current).StartsWith("_"))
                 {
                     return current;
                 }
