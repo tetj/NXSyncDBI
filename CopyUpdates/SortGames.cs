@@ -195,6 +195,78 @@ namespace CopyUpdates
             return !Directory.EnumerateFiles(path, "*", System.IO.SearchOption.AllDirectories).Any();
         }
 
+        // Appends [UPD] or [DLC] to filenames that are missing a content-type tag.
+        // BASE files (title ID ends in 000) are left unchanged.
+        // Only processes .nsp, .nsz, and .xci files that contain a bracketed 16-hex-char title ID.
+        public void TagFiles(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Console.WriteLine($"Error: Directory does not exist: {path}");
+                return;
+            }
+
+            Console.WriteLine($"Tagging files in: {path}");
+
+            string[] gameFiles = Directory.GetFiles(path, "*.*", System.IO.SearchOption.AllDirectories);
+            int renamedCount = 0;
+
+            foreach (string filePath in gameFiles)
+            {
+                string ext = Path.GetExtension(filePath).ToLowerInvariant();
+                if (ext != ".nsp" && ext != ".nsz" && ext != ".xci")
+                {
+                    continue;
+                }
+
+                string fileName = Path.GetFileName(filePath);
+                string fid = Program.getId(fileName);
+                if (string.IsNullOrEmpty(fid))
+                {
+                    continue;
+                }
+
+                string suffix = fid.Substring(13, 3);
+                string tag;
+                if (suffix.Equals("000", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue; // BASE — no tag needed
+                }
+                else if (suffix.Equals("800", StringComparison.OrdinalIgnoreCase))
+                {
+                    tag = "[UPD]";
+                }
+                else
+                {
+                    tag = "[DLC]";
+                }
+
+                // Skip if the tag is already present in the filename.
+                if (fileName.Contains(tag, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string nameWithoutExt = Path.GetFileNameWithoutExtension(filePath);
+                string newFileName = nameWithoutExt + tag + ext;
+                string newFilePath = Path.Combine(Path.GetDirectoryName(filePath), newFileName);
+
+                try
+                {
+                    File.Move(filePath, newFilePath);
+                    Console.WriteLine($"TAGGED: {fileName}");
+                    Console.WriteLine($"    AS: {newFileName}");
+                    renamedCount++;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error renaming {fileName}: {ex.Message}");
+                }
+            }
+
+            Console.WriteLine($"\n{renamedCount} file(s) renamed.");
+        }
+
         // Moves base game and update files out of game subfolders and into their _Installed or
         // _NotInstalled parent folder. DLC files are left in place. Files already sitting directly
         // inside the install-status folder are skipped. Empty game subfolders are sent to the Recycle Bin.
