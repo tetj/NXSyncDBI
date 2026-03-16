@@ -247,8 +247,17 @@ namespace CopyUpdates
                     continue;
                 }
 
+                // Replace [Update] with [UPD] if present, otherwise append the tag.
                 string nameWithoutExt = Path.GetFileNameWithoutExtension(filePath);
-                string newFileName = nameWithoutExt + tag + ext;
+                bool replacedLongTag = false;
+                if (tag == "[UPD]" && nameWithoutExt.Contains("[Update]", StringComparison.OrdinalIgnoreCase))
+                {
+                    int idx = nameWithoutExt.IndexOf("[Update]", StringComparison.OrdinalIgnoreCase);
+                    nameWithoutExt = nameWithoutExt.Remove(idx, "[Update]".Length).Insert(idx, "[UPD]");
+                    replacedLongTag = true;
+                }
+
+                string newFileName = replacedLongTag ? nameWithoutExt + ext : nameWithoutExt + tag + ext;
                 string newFilePath = Path.Combine(Path.GetDirectoryName(filePath), newFileName);
 
                 try
