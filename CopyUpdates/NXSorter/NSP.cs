@@ -24,7 +24,7 @@ namespace CopyUpdates
 
             var matches = Regex.Matches(fileName, "\\[(.*?)\\]");
 
-            string hexToken = null;
+            string? hexToken = null;
             foreach (Match m in matches)
             {
                 if (m.Groups.Count < 2)
@@ -86,7 +86,7 @@ namespace CopyUpdates
             try
             {
                 var files = Directory.EnumerateFiles(titlesRoot, "*", SearchOption.AllDirectories);
-                string match = files.FirstOrDefault(f => Path.GetFileName(f).IndexOf(baseHex, StringComparison.OrdinalIgnoreCase) >= 0);
+                string? match = files.FirstOrDefault(f => Path.GetFileName(f).IndexOf(baseHex, StringComparison.OrdinalIgnoreCase) >= 0);
 
                 if (match == null)
                 {

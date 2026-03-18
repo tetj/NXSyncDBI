@@ -78,7 +78,7 @@ namespace CopyUpdates
 
         public void MoveOneGame(string folder, string gameName)
         {
-            string firstFile = Directory.GetFiles(folder, "*.nsp").OrderBy(f => Path.GetFileName(f)).FirstOrDefault();
+            string? firstFile = Directory.GetFiles(folder, "*.nsp").OrderBy(f => Path.GetFileName(f)).FirstOrDefault();
             if (firstFile == null)
             {
                 Log($"No .nsp files found in folder: {folder}");

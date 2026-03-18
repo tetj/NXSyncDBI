@@ -19,9 +19,9 @@ namespace CopyUpdates
         // When mtpRefPath is null or empty, the MTP app (DBI or sphaira) is auto-detected by probing the device.
         private static void UploadToMtp(
             string localOriginPath, // local folder containing the game files to upload.
-            string mtpDestPath,     // path on the MTP device where uploaded files will be placed; uses the detected app default when empty.
-            string mtpRefPath,      // path on the MTP device scanned to detect which games are installed; auto-detected when null or empty.
-            string deviceName,      // optional substring of the device friendly name; uses the first device if empty.
+            string? mtpDestPath,    // path on the MTP device where uploaded files will be placed; uses the detected app default when empty.
+            string? mtpRefPath,     // path on the MTP device scanned to detect which games are installed; auto-detected when null or empty.
+            string? deviceName,     // optional substring of the device friendly name; uses the first device if empty.
             bool uploadAll = false) // when true, base games are also uploaded if not already installed.
         {
             var allDevices = MediaDevice.GetDevices().ToList();
@@ -31,7 +31,7 @@ namespace CopyUpdates
                 return;
             }
 
-            MediaDevice device;
+            MediaDevice? device;
             if (string.IsNullOrEmpty(deviceName))
             {
                 device = allDevices.First();
@@ -69,13 +69,13 @@ namespace CopyUpdates
                 HashSet<string> installedPrefixes;
                 Dictionary<string, int> switchContentMap;
 
-                bool flowControl = ScanMTP(mtpRefPath, device, out installedPrefixes, out switchContentMap);
+                bool flowControl = ScanMTP(mtpRefPath!, device, out installedPrefixes, out switchContentMap);
                 if (!flowControl)
                 {
                     return;
                 }
 
-                UploadMissingFiles(localOriginPath, mtpDestPath, device, installedPrefixes, switchContentMap, uploadAll);
+                UploadMissingFiles(localOriginPath, mtpDestPath!, device, installedPrefixes, switchContentMap, uploadAll);
             }
             finally
             {
@@ -87,10 +87,10 @@ namespace CopyUpdates
         // then resolves the appropriate ref path (for scanning installed games) and destination path.
         // Returns: true if a supported MTP app was detected; false if neither DBI nor sphaira was found.
         private static bool DetectMtpAppPaths(
-            MediaDevice device,      // the connected MTP device to probe.
-            string userDestPath,     // destination path provided by the user; overrides the app default when not empty.
-            out string mtpRefPath,   // set to the path used to scan which games are installed.
-            out string mtpDestPath)  // set to userDestPath if provided, otherwise the detected app default.
+            MediaDevice device,       // the connected MTP device to probe.
+            string? userDestPath,     // destination path provided by the user; overrides the app default when not empty.
+            out string? mtpRefPath,   // set to the path used to scan which games are installed.
+            out string? mtpDestPath)  // set to userDestPath if provided, otherwise the detected app default.
         {
             // Try DBI first.
             try
@@ -151,7 +151,7 @@ namespace CopyUpdates
                     {
                         // The folder name itself often contains the bracketed title ID in DBI MTP mode.
                         string folderName = Path.GetFileName(mtpGameFolder);
-                        string folderFid = getId(folderName);
+                        string? folderFid = getId(folderName);
                         if (!string.IsNullOrEmpty(folderFid))
                         {
                             installedPrefixes.Add(GetTitlePrefix(folderFid));
@@ -165,7 +165,7 @@ namespace CopyUpdates
                         // Also scan files directly inside the directory for NSP-style naming.
                         foreach (string mtpFile in TryEnumerateMtpFiles(device, mtpGameFolder) ?? new List<string>())
                         {
-                            string fid = getId(Path.GetFileName(mtpFile));
+                            string? fid = getId(Path.GetFileName(mtpFile));
                             if (string.IsNullOrEmpty(fid))
                             {
                                 continue;
@@ -189,7 +189,7 @@ namespace CopyUpdates
                 {
                     try
                     {
-                        string fid = getId(Path.GetFileName(mtpFile));
+                        string? fid = getId(Path.GetFileName(mtpFile));
                         if (string.IsNullOrEmpty(fid))
                         {
                             continue;

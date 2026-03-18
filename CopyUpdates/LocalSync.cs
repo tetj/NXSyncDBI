@@ -25,13 +25,13 @@ namespace CopyUpdates
                 {
                     try
                     {
-                        string id = getId(Path.GetFileName(sourcePath));
+                        string? id = getId(Path.GetFileName(sourcePath));
                         if (string.IsNullOrEmpty(id))
                         {
                             continue;
                         }
 
-                        string destFile = FindDestFileById(destinationPath, id);
+                        string? destFile = FindDestFileById(destinationPath, id);
                         if (destFile == null)
                         {
                             Console.WriteLine($"NO MATCH: {sourcePath}");
@@ -54,7 +54,7 @@ namespace CopyUpdates
                                 try
                                 {
                                     FileSystem.DeleteFile(destFile, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                                    CopyFile(sourceInfo, Path.GetDirectoryName(destFile), overwrite: false, mtpMode: mtpMode);
+                                    CopyFile(sourceInfo, Path.GetDirectoryName(destFile)!, overwrite: false, mtpMode: mtpMode);
                                     Console.WriteLine($"  Replaced.");
                                 }
                                 catch (Exception ex)
@@ -102,13 +102,13 @@ namespace CopyUpdates
                     string relativePath = sourcePath.Substring(sourceFolder.Length + 1);
                     string destPath = Path.Combine(destFolder, relativePath);
 
-                    string destDir = Path.GetDirectoryName(destPath);
+                    string destDir = Path.GetDirectoryName(destPath)!;
                     if (!Directory.Exists(destDir))
                     {
                         Directory.CreateDirectory(destDir);
                     }
 
-                    string fileId = getId(Path.GetFileName(sourcePath));
+                    string? fileId = getId(Path.GetFileName(sourcePath));
                     if (!string.IsNullOrEmpty(expectedIdPrefix) && !string.IsNullOrEmpty(fileId)
                         && !fileId.StartsWith(expectedIdPrefix, StringComparison.OrdinalIgnoreCase))
                     {
@@ -191,14 +191,7 @@ namespace CopyUpdates
                 try
                 {
                     string fileName = Path.GetFileName(sourcePath);
-                    string fid = getId(fileName);
-
-                    if (string.IsNullOrEmpty(fid))
-                    {
-                        continue;
-                    }
-
-                    if (!idToDestFolder.TryGetValue(fid, out string destFolder))
+                    string? fid = getId(fileName);                    if (!idToDestFolder.TryGetValue(fid, out string? destFolder))
                     {
                         // Fallback: match by 12-character ID prefix (covers base↔update/DLC ID variants)
                         string prefix = GetTitlePrefix(fid);
@@ -267,7 +260,7 @@ namespace CopyUpdates
 
         // Recursively searches a directory tree for the first file whose name contains the given title ID.
         // Returns: the full path of the first matching file, or null if no match is found.
-        private static string FindDestFileById(
+        private static string? FindDestFileById(
             string destRoot, // root directory to search.
             string id)       // title ID string to look for within each filename.
         {
@@ -283,7 +276,7 @@ namespace CopyUpdates
 
                 foreach (string dir in Directory.EnumerateDirectories(destRoot))
                 {
-                    string result = FindDestFileById(dir, id);
+                    string? result = FindDestFileById(dir, id);
                     if (result != null)
                     {
                         return result;

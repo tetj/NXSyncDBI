@@ -37,7 +37,7 @@ namespace CopyUpdates
         public bool IsDemo { get; set; }
 
         [JsonPropertyName("languages")]
-        public List<string> Languages { get; set; }
+        public List<string> Languages { get; set; } = new();
 
         [JsonPropertyName("name")]
         public string? Name { get; set; }

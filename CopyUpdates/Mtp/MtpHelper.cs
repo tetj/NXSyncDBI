@@ -167,7 +167,7 @@ namespace CopyUpdates
 
         // Lists all files at the given MTP path, enforcing a timeout to handle unresponsive devices.
         // Returns: a list of file paths, or null if the operation timed out.
-        public static List<string> TryEnumerateMtpFiles(
+        public static List<string>? TryEnumerateMtpFiles(
             MediaDevice device,      // the connected MTP device.
             string path,             // the MTP path to list files from.
             int timeoutSeconds = 30) // maximum seconds to wait before giving up (default: 30).
@@ -180,14 +180,14 @@ namespace CopyUpdates
             }
             if (task.IsFaulted)
             {
-                throw task.Exception.InnerException;
+                throw task.Exception!.InnerException!;
             }
             return task.Result;
         }
 
         // Lists all subdirectories at the given MTP path, enforcing a timeout to handle unresponsive devices.
         // Returns: a list of directory paths, or null if the operation timed out.
-        public static List<string> TryEnumerateMtpDirectories(
+        public static List<string>? TryEnumerateMtpDirectories(
             MediaDevice device,      // the connected MTP device.
             string path,             // the MTP path to list directories from.
             int timeoutSeconds = 30) // maximum seconds to wait before giving up (default: 30).
@@ -200,12 +200,12 @@ namespace CopyUpdates
             }
             if (task.IsFaulted)
             {
-                throw task.Exception.InnerException;
+                throw task.Exception!.InnerException!;
             }
             return task.Result;
         }
 
-        // Downloads a single file from the MTP device to the local file system.
+        // Downloads a single file from the MTP device
         // If a file already exists at the destination, it is sent to the Recycle Bin before downloading.
         // If the download fails, any partially written local file is deleted.
         // Returns: true if the download succeeded; false if an error occurred.

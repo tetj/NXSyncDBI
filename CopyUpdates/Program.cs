@@ -68,7 +68,7 @@ namespace CopyUpdates
                     Console.WriteLine($"Error: Destination directory does not exist: {destinationPath}");
                     return;
                 }
-                new SortGames().Run(originPath, destinationPath);
+                new SortGames().Run(originPath!, destinationPath);
                 WaitForKeyPressIfInteractive(args);
                 return;
             }
@@ -128,7 +128,7 @@ namespace CopyUpdates
                     Console.WriteLine($"Error: Destination directory does not exist: {destinationPath}");
                     return;
                 }
-                new SortGames().RunMatchFolder(originPath, destinationPath, matchFolderName);
+                new SortGames().RunMatchFolder(originPath!, destinationPath, matchFolderName!);
                 WaitForKeyPressIfInteractive(args);
                 return;
             }
@@ -153,14 +153,14 @@ namespace CopyUpdates
             {
                 try
                 {
-                    originPath = Path.GetFullPath(originPath);
+                    originPath = Path.GetFullPath(originPath!);
                 }
                 catch
                 {
                 }
                 try
                 {
-                    destinationPath = Path.GetFullPath(destinationPath);
+                    destinationPath = Path.GetFullPath(destinationPath!);
                 }
                 catch
                 {
@@ -194,12 +194,12 @@ namespace CopyUpdates
             }
 
             // Auto-detect MTP mode: DBI paths start with a backslash; sphaira paths start with "This PC\".
-            bool mtpMode = originPath.StartsWith(@"\")
-                || originPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase)
-                || destinationPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase);
+            bool mtpMode = originPath!.StartsWith(@"\")
+                || originPath!.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase)
+                || destinationPath!.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase);
 
             // An MTP origin means pull mode (MTP → local); a local origin means push mode (local → MTP).
-            bool isMtpOrigin = originPath.StartsWith(@"\") || originPath.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase);
+            bool isMtpOrigin = originPath!.StartsWith(@"\") || originPath!.StartsWith(@"This PC\", StringComparison.OrdinalIgnoreCase);
 
             try
             {
@@ -210,7 +210,7 @@ namespace CopyUpdates
                         // Push mode: local backup → MTP device
                         try
                         {
-                            originPath = Path.GetFullPath(originPath);
+                            originPath = Path.GetFullPath(originPath!);
                         }
                         catch
                         {
@@ -227,7 +227,7 @@ namespace CopyUpdates
                         // Pull mode: MTP device → local backup
                         try
                         {
-                            destinationPath = Path.GetFullPath(destinationPath);
+                            destinationPath = Path.GetFullPath(destinationPath!);
                         }
                         catch
                         {
@@ -243,8 +243,8 @@ namespace CopyUpdates
                 }
 
                 // Local mode: normalize both paths
-                originPath = Path.GetFullPath(originPath);
-                destinationPath = Path.GetFullPath(destinationPath);
+                originPath = Path.GetFullPath(originPath!);
+                destinationPath = Path.GetFullPath(destinationPath!);
 
                 // Validate paths
                 if (!ValidatePaths(originPath, destinationPath))
@@ -277,10 +277,10 @@ namespace CopyUpdates
                     {
                         foreach (string f in Directory.GetFiles(destFolder, "*.*", System.IO.SearchOption.AllDirectories))
                         {
-                            string fid = getId(Path.GetFileName(f));
+                            string? fid = getId(Path.GetFileName(f));
                             if (!string.IsNullOrEmpty(fid) && !idToDestFolder.ContainsKey(fid))
                             {
-                                idToDestFolder[fid] = Path.GetDirectoryName(f);
+                                idToDestFolder[fid] = Path.GetDirectoryName(f)!;
                             }
                         }
                     }
@@ -291,17 +291,17 @@ namespace CopyUpdates
                         string originFolder = originFolders[i];
                         DrawProgressBar(i + 1, originFolders.Count);
 
-                        string matchedDestFolder = null;
-                        string matchedFid = null;
+                        string? matchedDestFolder = null;
+                        string? matchedFid = null;
                         foreach (string f in Directory.GetFiles(originFolder, "*.*", System.IO.SearchOption.TopDirectoryOnly))
                         {
-                            string fid = getId(Path.GetFileName(f));
+                            string? fid = getId(Path.GetFileName(f));
                             if (string.IsNullOrEmpty(fid))
                             {
                                 continue;
                             }
 
-                            if (idToDestFolder.TryGetValue(fid, out string dest))
+                            if (idToDestFolder.TryGetValue(fid, out string? dest))
                             {
                                 matchedDestFolder = dest;
                                 matchedFid = fid;
@@ -347,14 +347,14 @@ namespace CopyUpdates
         static (string? originPath, string? destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode, bool tagMode, string? matchFolderName, bool ulaunchMode, bool ageratingMode, bool recursive) ParseCommandLineArguments(
             string[] args) // the array of command-line argument strings.
         {
-            string originPath = null;
-            string destinationPath = null;
+            string? originPath = null;
+            string? destinationPath = null;
             bool compareMode = false;
             bool uploadAll = false;
             bool sortMode = false;
             bool flattenMode = false;
             bool tagMode = false;
-            string matchFolderName = null;
+            string? matchFolderName = null;
             bool ulaunchMode = false;
             bool ageratingMode = false;
             bool recursive = false;
@@ -506,6 +506,8 @@ namespace CopyUpdates
             Console.WriteLine("  CopyUpdates.exe -o \"\\4: Installed games\" -d T:\\Backup\\         (Download updates from Switch via DBI: origin starts with \\)");
             Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d \"\\5: SD Card install\"       (Upload updates to Switch via DBI: dest starts with \\)");
             Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d C:\\AllMyGames\\               (local: no backslash prefix)");
+            Console.WriteLine("  CopyUpdates.exe -s -o \"\\4: Installed games\" -d C:\\AllMyGames\\     (Sort local games into _Installed / _NotInstalled subfolders)");
+            Console.WriteLine("  CopyUpdates.exe -f C:\\_AllMyGames\\                                           (careful with that feature, underscore is important)");
             Console.WriteLine();
             Console.WriteLine("If no arguments are provided, the application runs in interactive mode.");
             Console.WriteLine();
@@ -554,7 +556,7 @@ namespace CopyUpdates
             while (true)
             {
                 Console.Write(prompt);
-                string path = Console.ReadLine()?.Trim();
+                string? path = Console.ReadLine()?.Trim();
 
                 if (string.IsNullOrEmpty(path))
                 {

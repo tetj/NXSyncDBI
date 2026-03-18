@@ -10,7 +10,7 @@ namespace CopyUpdates
 
     public class FileDownloader
     {
-        public event EventHandler<DownloadProgressEventArgs> ProgressChanged;
+        public event EventHandler<DownloadProgressEventArgs>? ProgressChanged;
 
         public class DownloadProgressEventArgs : EventArgs
         {

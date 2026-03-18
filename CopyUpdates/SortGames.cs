@@ -48,7 +48,7 @@ namespace CopyUpdates
                     }
 
                     string fileName = Path.GetFileName(filePath);
-                    string fid = Program.getId(fileName);
+                    string? fid = Program.getId(fileName);
                     if (string.IsNullOrEmpty(fid))
                     {
                         Console.WriteLine($"SKIP (no title ID): {fileName}");
@@ -58,7 +58,7 @@ namespace CopyUpdates
                     string prefix = Program.GetTitlePrefix(fid);
                     bool isInstalled = installedPrefixes.Contains(prefix);
 
-                    string newFilePath = ComputeNewFilePath(filePath, destinationPath, isInstalled);
+                    string? newFilePath = ComputeNewFilePath(filePath, destinationPath, isInstalled);
                     if (newFilePath == null || string.Equals(newFilePath, filePath, StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
@@ -66,12 +66,12 @@ namespace CopyUpdates
 
                     try
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
+                        Directory.CreateDirectory(Path.GetDirectoryName(newFilePath)!);
                         File.Move(filePath, newFilePath);
                         Console.WriteLine($"MOVED: {filePath}");
                         Console.WriteLine($"   TO: {newFilePath}");
                         movedCount++;
-                        sourceDirectories.Add(Path.GetDirectoryName(filePath));
+                        sourceDirectories.Add(Path.GetDirectoryName(filePath)!);
                     }
                     catch (Exception ex)
                     {
@@ -132,7 +132,7 @@ namespace CopyUpdates
                 {
                     Console.WriteLine($"\nProcessing: {matchedFolder}");
 
-                    string parentFolder = Path.GetDirectoryName(matchedFolder);
+                    string parentFolder = Path.GetDirectoryName(matchedFolder)!;
                     string notInstalledFolder = Path.Combine(parentFolder, UninstalledFolderName);
 
                     string[] gameFiles = Directory.GetFiles(matchedFolder, "*.*", System.IO.SearchOption.AllDirectories);
@@ -148,7 +148,7 @@ namespace CopyUpdates
                         }
 
                         string fileName = Path.GetFileName(filePath);
-                        string fid = Program.getId(fileName);
+                        string? fid = Program.getId(fileName);
                         if (string.IsNullOrEmpty(fid))
                         {
                             Console.WriteLine($"SKIP (no title ID): {fileName}");
@@ -168,12 +168,12 @@ namespace CopyUpdates
 
                         try
                         {
-                            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
+                            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath)!);
                             File.Move(filePath, newFilePath);
                             Console.WriteLine($"MOVED: {filePath}");
                             Console.WriteLine($"   TO: {newFilePath}");
                             totalMoved++;
-                            sourceDirectories.Add(Path.GetDirectoryName(filePath));
+                            sourceDirectories.Add(Path.GetDirectoryName(filePath)!);
                         }
                         catch (Exception ex)
                         {
@@ -206,7 +206,7 @@ namespace CopyUpdates
         // When no install-status segment is found, moves the file into a _Installed or _NotInstalled
         // subfolder under its current directory.
         // Returns null when the file is already in the right place.
-        private static string ComputeNewFilePath(string filePath, string rootPath, bool isInstalled)
+        private static string? ComputeNewFilePath(string filePath, string rootPath, bool isInstalled)
         {
             string relativePath = Path.GetRelativePath(rootPath, filePath);
             string[] segments = relativePath.Split(Path.DirectorySeparatorChar);
@@ -229,7 +229,7 @@ namespace CopyUpdates
             // No install-status folder found in the path: place the file into _Installed or
             // _NotInstalled directly under its current directory.
             string targetFolder = isInstalled ? InstalledFolderName : UninstalledFolderName;
-            return Path.Combine(Path.GetDirectoryName(filePath), targetFolder, Path.GetFileName(filePath));
+            return Path.Combine(Path.GetDirectoryName(filePath)!, targetFolder, Path.GetFileName(filePath));
         }
 
         // Determines whether a folder name represents an install-status folder.
@@ -259,7 +259,7 @@ namespace CopyUpdates
 
             foreach (string sourceDir in sourceDirectories.OrderByDescending(d => d.Length))
             {
-                string current = sourceDir;
+                string? current = sourceDir;
                 while (current != null
                     && !string.Equals(current, rootPath, StringComparison.OrdinalIgnoreCase)
                     && current.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
@@ -269,7 +269,7 @@ namespace CopyUpdates
                         break;
                     }
 
-                    string parent = Path.GetDirectoryName(current);
+                    string? parent = Path.GetDirectoryName(current);
                     try
                     {
                         FileSystem.DeleteDirectory(current, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
@@ -324,7 +324,7 @@ namespace CopyUpdates
                 }
 
                 string fileName = Path.GetFileName(filePath);
-                string fid = Program.getId(fileName);
+                string? fid = Program.getId(fileName);
                 if (string.IsNullOrEmpty(fid))
                 {
                     continue;
@@ -362,7 +362,7 @@ namespace CopyUpdates
                 }
 
                 string newFileName = replacedLongTag ? nameWithoutExt + ext : nameWithoutExt + tag + ext;
-                string newFilePath = Path.Combine(Path.GetDirectoryName(filePath), newFileName);
+                string newFilePath = Path.Combine(Path.GetDirectoryName(filePath)!, newFileName);
 
                 try
                 {
@@ -409,13 +409,13 @@ namespace CopyUpdates
                 }
 
                 string fileName = Path.GetFileName(filePath);
-                string fid = Program.getId(fileName);
+                string? fid = Program.getId(fileName);
                 if (string.IsNullOrEmpty(fid) || IsBaseOrUpdate(fid))
                 {
                     continue;
                 }
 
-                string dir = Path.GetDirectoryName(filePath);
+                string dir = Path.GetDirectoryName(filePath)!;
                 dlcCountPerFolder.TryGetValue(dir, out int existing);
                 dlcCountPerFolder[dir] = existing + 1;
             }
@@ -430,14 +430,14 @@ namespace CopyUpdates
                 }
 
                 string fileName = Path.GetFileName(filePath);
-                string fid = Program.getId(fileName);
+                string? fid = Program.getId(fileName);
                 if (string.IsNullOrEmpty(fid))
                 {
                     Console.WriteLine($"SKIP (no title ID): {fileName}");
                     continue;
                 }
 
-                string fileDir = Path.GetDirectoryName(filePath);
+                string fileDir = Path.GetDirectoryName(filePath)!;
 
                 // If the current folder already starts with _, the file is already in place.
                 if (Path.GetFileName(fileDir).StartsWith("_"))
@@ -457,7 +457,7 @@ namespace CopyUpdates
                     }
                 }
 
-                string targetFolder = FindClosestUnderscoreParent(fileDir);
+                string? targetFolder = FindClosestUnderscoreParent(fileDir);
                 if (targetFolder == null)
                 {
                     Console.WriteLine($"SKIP (no underscore parent): {fileName}");
@@ -505,9 +505,9 @@ namespace CopyUpdates
         // Walks up the directory tree from startDir and returns the first folder whose name
         // matches the install-status pattern (_Installed, _NotInstalled, etc.).
         // Returns null when no such folder is found.
-        private static string FindInstallStatusFolder(string startDir)
+        private static string? FindInstallStatusFolder(string startDir)
         {
-            string current = startDir;
+            string? current = startDir;
             while (current != null)
             {
                 if (TryClassifyInstallFolder(Path.GetFileName(current), out _))
@@ -523,9 +523,9 @@ namespace CopyUpdates
 
         // Walks up the directory tree from startDir (exclusive) and returns the first ancestor
         // folder whose name starts with an underscore. Returns null when no such folder is found.
-        private static string FindClosestUnderscoreParent(string startDir)
+        private static string? FindClosestUnderscoreParent(string startDir)
         {
-            string current = Path.GetDirectoryName(startDir);
+            string? current = Path.GetDirectoryName(startDir);
             while (current != null)
             {
                 if (Path.GetFileName(current).StartsWith("_"))

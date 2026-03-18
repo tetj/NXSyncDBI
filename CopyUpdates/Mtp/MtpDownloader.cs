@@ -11,7 +11,7 @@ namespace CopyUpdates
         private static void DownloadFromMtp(
             string mtpOriginPath,   // path on the MTP device to scan for game folders.
             string destinationPath, // local root path where game files are organized by folder.
-            string deviceName)      // optional substring of the device friendly name; uses the first device if empty.
+            string? deviceName)     // optional substring of the device friendly name; uses the first device if empty.
         {
             var allDevices = MediaDevice.GetDevices().ToList();
             if (allDevices.Count == 0)
@@ -20,7 +20,7 @@ namespace CopyUpdates
                 return;
             }
 
-            MediaDevice device;
+            MediaDevice? device;
             if (string.IsNullOrEmpty(deviceName))
             {
                 device = allDevices.First();
@@ -51,16 +51,16 @@ namespace CopyUpdates
                 {
                     foreach (string f in Directory.GetFiles(destFolder, "*.*", System.IO.SearchOption.AllDirectories))
                     {
-                        string fid = getId(Path.GetFileName(f));
+                        string? fid = getId(Path.GetFileName(f));
                         if (!string.IsNullOrEmpty(fid) && !idToDestFolder.ContainsKey(fid))
                         {
-                            idToDestFolder[fid] = Path.GetDirectoryName(f);
+                            idToDestFolder[fid] = Path.GetDirectoryName(f)!;
                         }
                     }
                 }
 
                 // Enumerate game folders on the device
-                List<string> mtpFolders;
+                List<string>? mtpFolders;
                 try
                 {
                     mtpFolders = TryEnumerateMtpDirectories(device, mtpOriginPath);
@@ -89,20 +89,14 @@ namespace CopyUpdates
                     string mtpFolder = mtpFolders[i];
                     DrawProgressBar(i + 1, total);
 
-                    string matchedDestFolder = null;
-                    string matchedFid = null;
+                    string? matchedDestFolder = null;
+                    string? matchedFid = null;
 
                     try
                     {
                         foreach (string mtpFile in TryEnumerateMtpFiles(device, mtpFolder) ?? new List<string>())
                         {
-                            string fid = getId(Path.GetFileName(mtpFile));
-                            if (string.IsNullOrEmpty(fid))
-                            {
-                                continue;
-                            }
-
-                            if (idToDestFolder.TryGetValue(fid, out string dest))
+                            string? fid = getId(Path.GetFileName(mtpFile));                            if (idToDestFolder.TryGetValue(fid, out string? dest))
                             {
                                 matchedDestFolder = dest;
                                 matchedFid = fid;
@@ -142,13 +136,13 @@ namespace CopyUpdates
                     foreach (string mtpFile in TryEnumerateMtpFiles(device, mtpOriginPath) ?? new List<string>())
                     {
                         string fileName = Path.GetFileName(mtpFile);
-                        string fid = getId(fileName);
+                        string? fid = getId(fileName);
                         if (string.IsNullOrEmpty(fid))
                         {
                             continue;
                         }
 
-                        if (!idToDestFolder.TryGetValue(fid, out string destFolder))
+                        if (!idToDestFolder.TryGetValue(fid, out string? destFolder))
                         {
                             string prefix = GetTitlePrefix(fid);
                             var kvp = idToDestFolder.FirstOrDefault(
@@ -207,7 +201,7 @@ namespace CopyUpdates
                 foreach (string mtpFile in GetMtpFilesRecursive(device, mtpFolder))
                 {
                     string fileName = Path.GetFileName(mtpFile);
-                    string fileId = getId(fileName);
+                    string? fileId = getId(fileName);
 
                     if (!string.IsNullOrEmpty(expectedIdPrefix) && !string.IsNullOrEmpty(fileId)
                         && !fileId.StartsWith(expectedIdPrefix, StringComparison.OrdinalIgnoreCase))
@@ -219,7 +213,7 @@ namespace CopyUpdates
                     // Preserve subfolder structure relative to the MTP game folder
                     string relativePath = mtpFile.Substring(mtpFolder.Length).TrimStart('\\', '/');
                     string destPath = Path.Combine(destFolder, relativePath);
-                    string destDir = Path.GetDirectoryName(destPath);
+                    string destDir = Path.GetDirectoryName(destPath)!;
 
                     if (!Directory.Exists(destDir))
                     {

@@ -9,7 +9,7 @@ namespace CopyUpdates
         // Scans all bracketed segments so that descriptive labels such as "[DLC Asia Expansion]"
         // that appear before the ID are correctly skipped.
         // Returns: the 16-character hex title ID, or null if none is found.
-        internal static string getId(
+        internal static string? getId(
             string s) // the filename string to search within.
         {
             int searchFrom = 0;
@@ -38,7 +38,7 @@ namespace CopyUpdates
             return null;
         }
 
-        // Extracts the version number from a "[vN]" tag embedded in a filename, e.g. "[v65536]" → 65536.
+        // Extracts the version number
         // Returns: the integer version number, or 0 if no valid version tag is found.
         private static int getVersion(
             string s) // the filename string to search within.
@@ -65,7 +65,7 @@ namespace CopyUpdates
         // Nintendo Switch base game IDs are exactly 16 hex characters and end with "0000".
         // Returns: true if the title ID represents a base game; false otherwise.
         private static bool IsBaseGame(
-            string titleId) // the 16-character hexadecimal title ID to check.
+            string? titleId) // the 16-character hexadecimal title ID to check.
         {
             // Nintendo Switch base game IDs are 16 hex chars ending in 0000
             // Updates end in 0800, DLCs end in 0001-07FF
@@ -78,13 +78,13 @@ namespace CopyUpdates
         // and is used to group or match related content across different ID variants.
         // Returns: the first 12 characters of titleId, or the full string if it is shorter than 12 characters.
         internal static string GetTitlePrefix(
-            string titleId) // the title ID string to truncate.
+            string? titleId) // the title ID string to truncate.
         {
             if (titleId != null && titleId.Length >= 12)
             {
                 return titleId.Substring(0, 12);
             }
-            return titleId;
+            return titleId ?? string.Empty;
         }
 
         // Decides whether a source file should be copied to the destination based on version and size.
@@ -97,11 +97,11 @@ namespace CopyUpdates
             long sourceLength,               // size of the source file in bytes.
             bool skipSizeComparison = false) // when true, same-version files are not compared by size (used for MTP sources).
         {
-            string destDir = Path.GetDirectoryName(destPath);
+            string destDir = Path.GetDirectoryName(destPath)!;
             int version = getVersion(relativePath);
 
             // adding this because DBI changed the filename format so I must cover all formats, so better to check the ID
-            string id = getId(relativePath);
+            string? id = getId(relativePath);
 
             // Decide whether to copy:
             // - If no file with the same id exists in the destination directory -> copy
