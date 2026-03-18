@@ -124,7 +124,7 @@ Moves game folders into a directory tree organized first by player count (`1` fo
 CopyUpdates -agerating -r -o "C:\gamesFromDbi" -d "C:\AllMyGames"
 ```
 
-- `-o` is the source directory containing games with the expected filename format : Game Title [0100XXXXXXXX0000][vYYYYYY][TYPE].nsp
+- `-o` is the source directory containing games with the expected filename format (see file naming convention above).
 - You can use this tool to rename your files correctly : https://github.com/tetj/ConvertXciToNsp
 - `-d` is the destination root where the rating tree is built.
 - Add `-r` to also scan subfolders of `-o` recursively.
