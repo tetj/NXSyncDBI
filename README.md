@@ -253,10 +253,10 @@ CopyUpdates -f "C:\AllMyGames\_NSPinSubfolders"
   ```
   C:\AllMyGames\
   ├── _NoMoreSubfolders\
-  ├── botw.nsp
-  ├── botw-update.nsp
-  ├── mario_kart8_deluxe.nsp
-  ├── dark_souls_remastered.nsp
+  ├── The Legend of Zelda - Breath of the Wild[01007EF00011E000][BASE].nsp
+  └── The Legend of Zelda - Breath of the Wild[01007EF00011E800][v65536][UPD].nsp
+  ├── Mario Kart 8 Deluxe[0100ABC00011E000][BASE].nsp
+  ├── Dark Souls Remastered[0100DEF00011E000][BASE].nsp
   ```
 
 ---
