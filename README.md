@@ -230,16 +230,34 @@ CopyUpdates -s -o "\4: Installed games" -d "C:\AllMyGames"
 
 ### `-f` / `--flatten` — Flatten game subfolders
 
-Moves base game and update files out of game-specific subfolders into the closest ancestor folder whose name starts with an underscore (`_`). DLC files are moved only when there are fewer than 4 DLC files in the same folder; folders with 4 or more DLC files are left untouched.
+Moves base game and update files out of game-specific subfolders into the closest ancestor folder whose name starts with an **underscore** (`_`). DLC files are moved only when there are fewer than 4 DLC files in the same folder; folders with 4 or more DLC files are left untouched.
 
 ```
-CopyUpdates -f "C:\AllMyGames\_Installed"
+CopyUpdates -f "C:\AllMyGames\_NSPinSubfolders"
 ```
 
 - Be **careful** with this option, try in a test folder first to make sure it does what you expect.
 - It will move files around and delete empty folders, so you might want to have a backup.
 - Files that already sit directly inside an underscore-prefixed folder are skipped.
 - Empty subfolders left after moving are sent to the Recycle Bin.
+
+- **Starting** structure example:
+  ```
+  C:\AllMyGames\
+  ├── _NSPinSubfolders\
+  │   ├── Mario Kart8 Deluxe\
+  │   ├── Zelda BOTW\
+  │   ├── Dark Souls Remastered\
+  ```
+- **Resulting** structure example:
+  ```
+  C:\AllMyGames\
+  ├── _NoMoreSubfolders\
+  ├── botw.nsp
+  ├── botw-update.nsp
+  ├── mario_kart8_deluxe.nsp
+  ├── dark_souls_remastered.nsp
+  ```
 
 ---
 
