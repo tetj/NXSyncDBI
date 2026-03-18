@@ -197,6 +197,17 @@ CopyUpdates -s -o "\4: Installed games" -d "C:\AllMyGames"
   │   ├── TEEN\_SDCARD2\
   ```
 
+**How to use**
+
+First put your first SD card in your Switch, then :
+```
+CopyUpdates -m _SDCARD1 -o "\4: Installed games" -d "C:\AllMyGames"
+```
+First put your second SD card in your Switch, then :
+```
+CopyUpdates -m _SDCARD2 -o "\4: Installed games" -d "C:\AllMyGames"
+```
+
 - **Resulting** structure example:
   ```
   C:\AllMyGames\
@@ -214,17 +225,6 @@ CopyUpdates -s -o "\4: Installed games" -d "C:\AllMyGames"
   │   ├── TEEN\_SDCARD2\
   │   ├── TEEN\_SDCARD2\_NotInstalled\
   ```
-
-**How to use**
-First put your first SD card in your Switch, then :
-```
-CopyUpdates -m _SDCARD1 -o "\4: Installed games" -d "C:\AllMyGames"
-```
-
-First put your second SD card in your Switch, then :
-```
-CopyUpdates -m _SDCARD2 -o "\4: Installed games" -d "C:\AllMyGames"
-```
 
 ---
 
