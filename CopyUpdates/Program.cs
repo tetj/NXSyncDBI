@@ -14,20 +14,23 @@ namespace CopyUpdates
         static void Main(
             string[] args) // command-line arguments passed to the application.
         {
-            string originPath;
-            string destinationPath;
+            string? originPath;
+            string? destinationPath;
             bool compareMode = false;
             bool uploadAll = false;
             bool sortMode = false;
             bool flattenMode = false;
             bool tagMode = false;
-            string matchFolderName = null;
+            string? matchFolderName = null;
+            bool ulaunchMode = false;
+            bool ageratingMode = false;
+            bool recursive = false;
 
             if (args.Length > 0)
             {
                 // Parse command line arguments
-                (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName) = ParseCommandLineArguments(args);
-                if (string.IsNullOrEmpty(destinationPath) || (!sortMode && !flattenMode && !tagMode && string.IsNullOrEmpty(matchFolderName) && string.IsNullOrEmpty(originPath)))
+                (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName, ulaunchMode, ageratingMode, recursive) = ParseCommandLineArguments(args);
+                if (string.IsNullOrEmpty(destinationPath) || (!sortMode && !flattenMode && !tagMode && !ulaunchMode && !ageratingMode && string.IsNullOrEmpty(matchFolderName) && string.IsNullOrEmpty(originPath)))
                 {
                     ShowHelp();
                     return;
@@ -126,6 +129,66 @@ namespace CopyUpdates
                     return;
                 }
                 new SortGames().RunMatchFolder(originPath, destinationPath, matchFolderName);
+                WaitForKeyPressIfInteractive(args);
+                return;
+            }
+
+            // uLaunch mode: generate uLaunch menu JSON files from a local directory structure.
+            if (ulaunchMode)
+            {
+                if (string.IsNullOrEmpty(originPath) || !Directory.Exists(originPath))
+                {
+                    Console.WriteLine($"Error: Input directory does not exist: {originPath}");
+                    return;
+                }
+                var generator = new ULaunchMenuGenerator();
+                var ulaunchFolders = generator.ScanDirectory(originPath);
+                generator.Generate(destinationPath, ulaunchFolders);
+                WaitForKeyPressIfInteractive(args);
+                return;
+            }
+
+            // Age rating mode: sort game folders into a directory tree by player count and ESRB rating.
+            if (ageratingMode)
+            {
+                try
+                {
+                    originPath = Path.GetFullPath(originPath);
+                }
+                catch
+                {
+                }
+                try
+                {
+                    destinationPath = Path.GetFullPath(destinationPath);
+                }
+                catch
+                {
+                }
+                if (!Directory.Exists(originPath))
+                {
+                    Console.WriteLine($"Error: Source directory does not exist: {originPath}");
+                    return;
+                }
+                if (!Directory.Exists(destinationPath))
+                {
+                    Console.WriteLine($"Error: Destination directory does not exist: {destinationPath}");
+                    return;
+                }
+                var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                var gameFolders = Directory.GetDirectories(originPath, "*", searchOption);
+                var json = new MoveWithJson(destinationPath, Verbose);
+                foreach (var folder in gameFolders)
+                {
+                    string gameName = Path.GetFileName(folder);
+                    json.MoveOneGame(folder, gameName);
+                }
+                var gameFiles = Directory.GetFiles(originPath, "*", searchOption);
+                foreach (var file in gameFiles)
+                {
+                    NSP.MoveToMatchingTitleFolder(file);
+                    json.MoveFileWithNoMatch(file);
+                }
                 WaitForKeyPressIfInteractive(args);
                 return;
             }
@@ -281,7 +344,7 @@ namespace CopyUpdates
 
         // Parses the command-line arguments into individual settings used to control the sync operation.
         // Returns: a tuple containing originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, and matchFolderName.
-        static (string originPath, string destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode, bool tagMode, string matchFolderName) ParseCommandLineArguments(
+        static (string? originPath, string? destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode, bool tagMode, string? matchFolderName, bool ulaunchMode, bool ageratingMode, bool recursive) ParseCommandLineArguments(
             string[] args) // the array of command-line argument strings.
         {
             string originPath = null;
@@ -292,6 +355,9 @@ namespace CopyUpdates
             bool flattenMode = false;
             bool tagMode = false;
             string matchFolderName = null;
+            bool ulaunchMode = false;
+            bool ageratingMode = false;
+            bool recursive = false;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -360,10 +426,25 @@ namespace CopyUpdates
                         Verbose = true;
                         break;
 
+                    case "-ulaunch":
+                    case "--ulaunch":
+                        ulaunchMode = true;
+                        break;
+
+                    case "-agerating":
+                    case "--agerating":
+                        ageratingMode = true;
+                        break;
+
+                    case "-r":
+                    case "--recursive":
+                        recursive = true;
+                        break;
+
                     case "-h":
                     case "--help":
                         ShowHelp();
-                        return (null, null, false, false, false, false, false, null);
+                        return (null, null, false, false, false, false, false, null, false, false, false);
 
                     default:
                         // If not using named parameters, assume first two args are origin and destination
@@ -371,13 +452,13 @@ namespace CopyUpdates
                         {
                             originPath = args[0];
                             destinationPath = args[1];
-                            return (originPath, destinationPath, false, false, false, false, false, null);
+                            return (originPath, destinationPath, false, false, false, false, false, null, false, false, false);
                         }
                         break;
                 }
             }
 
-            return (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName);
+            return (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName, ulaunchMode, ageratingMode, recursive);
         }
 
         // Prints usage instructions and all available command-line options to the console.
@@ -427,6 +508,20 @@ namespace CopyUpdates
             Console.WriteLine("  CopyUpdates.exe -o C:\\NewGames\\ -d C:\\AllMyGames\\               (local: no backslash prefix)");
             Console.WriteLine();
             Console.WriteLine("If no arguments are provided, the application runs in interactive mode.");
+            Console.WriteLine();
+            Console.WriteLine("uLaunch mode (-ulaunch):");
+            Console.WriteLine("  Scans -o <input_dir> and generates uLaunch .m.json menu files into -d <output_dir>.");
+            Console.WriteLine("  Each immediate subfolder of input_dir becomes a top-level uLaunch folder entry.");
+            Console.WriteLine("  Sub-subfolders recurse into nested uLaunch folders.");
+            Console.WriteLine("  Copy the output to /ulaunch/menu/ on your Switch SD card.");
+            Console.WriteLine("  Example: CopyUpdates.exe -ulaunch -o C:\\Games\\ -d C:\\ulaunch_out\\");
+            Console.WriteLine();
+            Console.WriteLine("Age rating mode (-agerating):");
+            Console.WriteLine("  Sorts game folders and loose files under -o into a directory tree at -d");
+            Console.WriteLine("  organised by number of players (1 / COOP) and ESRB rating (EVERYONE / EVERYONE 10+ / TEEN / MATURE / UNKNOWN).");
+            Console.WriteLine("  Game metadata is looked up by title ID from the community titledb JSON (downloaded automatically).");
+            Console.WriteLine("  -r  Also process sub-directories recursively.");
+            Console.WriteLine("  Example: CopyUpdates.exe -agerating -o C:\\Games\\ -d C:\\Sorted\\");
         }
 
         // Checks that both the origin and destination directories exist on disk.
