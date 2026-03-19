@@ -1,4 +1,4 @@
-# CopyUpdates
+# Main feature : Sync DBI with your PC
 
 A console utility for synchronizing Nintendo Switch game files between an origin folder and a destination folder, especially useful when used with [DBI](https://github.com/rashevskyv/dbi/releases)'s MTP mode.
 It's a tool to automate the process of copying games/updates/DLCs between your Switch and your PC.
@@ -17,7 +17,7 @@ You can use this tool to fix the file names on your local drives : https://githu
 - Ensures that only newer versions of files are copied/stored, preventing unnecessary transfers and saving storage space
 - Keep your local drive organized
 
-# How to use this tool ?
+# How to use sync my games ?
 - Check [HowTo.md](CopyUpdates/HowTo.md) for instructions
 
 # Examples in the command line
@@ -69,23 +69,23 @@ Mismatched files are automatically replaced.
 
 **Origin (before sync):**
 ```
-The Legend of Zelda - Breath of the Wild/
-├── The Legend of Zelda - Breath of the Wild[01007EF00011E000][v0].nsp
-├── The Legend of Zelda - Breath of the Wild[01007EF00011E800][v196608][UPD].nsp		
-└── The Legend of Zelda - Breath of the Wild[01007EF00011F001][DLC].nsp
+The Legend of Zelda - BOTW/
+├── The Legend of Zelda - BOTW[01007EF00011E000][v0].nsp
+├── The Legend of Zelda - BOTW[01007EF00011E800][v196608][UPD].nsp		
+└── The Legend of Zelda - BOTW[01007EF00011F001][DLC].nsp
 ```
 **Destination (before sync):**
 ```
-The Legend of Zelda - Breath of the Wild/
-├── The Legend of Zelda - Breath of the Wild[01007EF00011E000][BASE].nsp
-└── The Legend of Zelda - Breath of the Wild[01007EF00011E800][v65536][UPD].nsp
+The Legend of Zelda - BOTW/
+├── The Legend of Zelda - BOTW[01007EF00011E000][BASE].nsp
+└── The Legend of Zelda - BOTW[01007EF00011E800][v65536][UPD].nsp
 ```
 **Destination (after sync):**
 ```
-The Legend of Zelda - Breath of the Wild/
-├── The Legend of Zelda - Breath of the Wild[01007EF00011E000][BASE].nsp
-└── The Legend of Zelda - Breath of the Wild[01007EF00011E800][v196608][UPD].nsp // this was updated from v65536 to v196608
-└── The Legend of Zelda - Breath of the Wild[01007EF00011F001][DLC].nsp	// this was added from origin
+The Legend of Zelda - BOTW/
+├── The Legend of Zelda - BOTW[01007EF00011E000][BASE].nsp
+└── The Legend of Zelda - BOTW[01007EF00011E800][v196608][UPD].nsp // this was updated from v65536 to v196608
+└── The Legend of Zelda - BOTW[01007EF00011F001][DLC].nsp	// this was added from origin
 ```
 
 ----------------------------------------
@@ -253,8 +253,8 @@ CopyUpdates -f "C:\AllMyGames\_NSPinSubfolders"
   ```
   C:\AllMyGames\
   ├── _NoMoreSubfolders\
-  ├── The Legend of Zelda - Breath of the Wild[01007EF00011E000][BASE].nsp
-  └── The Legend of Zelda - Breath of the Wild[01007EF00011E800][v65536][UPD].nsp
+  ├── The Legend of Zelda - BOTW[01007EF00011E000][BASE].nsp
+  └── The Legend of Zelda - BOTW[01007EF00011E800][v65536][UPD].nsp
   ├── Mario Kart 8 Deluxe[0100ABC00011E000][BASE].nsp
   ├── Dark Souls Remastered[0100DEF00011E000][BASE].nsp
   ```
