@@ -1,7 +1,19 @@
-# Main feature : Sync DBI with your PC
+# CopyUpdates
 
 A console utility for synchronizing Nintendo Switch game files between an origin folder and a destination folder, especially useful when used with [DBI](https://github.com/rashevskyv/dbi/releases)'s MTP mode.
 It's a tool to automate the process of copying games/updates/DLCs between your Switch and your PC.
+
+## Features
+- 🔄 **Sync** — copy updates/DLCs from a local folder to your Switch (or pull from Switch to PC)
+- 📱 **Sphaira support** — auto-detects sphaira MTP mode in addition to DBI MTP
+- 🔃 **Compare** (`-c`) — detect and replace size-mismatched files between two folders
+- 📶 **Sort by install status** (`-s`) — move local files into `_Installed` / `_NotInstalled` based on what is on the Switch
+- 📁 **Match-folder sort** (`-m`) — same as sort but scoped to every subfolder with a given name
+- 📦 **Flatten folders** (`-f`) — move base/update files out of game subfolders into the nearest `_`-prefixed parent
+- 🏷️ **Auto-tag file types** (`-t`) — append `[UPD]` or `[DLC]` to filenames missing a content-type label
+- 🎮 **Age-rating sort** (`-agerating`) — organize game folders by ESRB rating and maximum number of players (single player vs local coop)
+- 📋 **uLaunch menu generator** (`-ulaunch`) — generate uLaunch `.m.json` home-screen menu files from a local folder structure
+- 🔊 **Verbose mode** (`-verbose`) — print the reason every skipped file was not uploaded
 
 ## Overview
 
@@ -238,7 +250,7 @@ CopyUpdates -f "C:\AllMyGames\_NSPinSubfolders"
 
 - Be **careful** with this option, try in a test folder first to make sure it does what you expect.
 - It will move files around and delete empty folders, so you might want to have a backup.
-- Files that already sit directly inside an underscore-prefixed folder are skipped.
+- Files that already sit directly inside an **underscore-prefixed** folder are skipped.
 - Empty subfolders left after moving are sent to the Recycle Bin.
 
 - **Starting** structure example:
