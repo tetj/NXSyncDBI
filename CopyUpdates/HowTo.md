@@ -13,6 +13,7 @@
 - [How to organize your games/ROMs on your PC](#how-to-organize-your-gamesroms-on-your-pc)
 - [How to have your own local DBI shop (OwnFoil alternative)](#how-to-have-your-own-local-dbi-shop-ownfoil-alternative)
 - [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
+- [How to use multiple sd cards on your modded Nintendo Switch](#how-to-use-multiple-sd-cards-on-your-modded-switch)
 
 # How to update your games from DBI shops
 
@@ -194,4 +195,45 @@ docker compose up -d
 
 - [Importing Switch NSP guide](https://github.com/tetj/BonusTools/blob/main/documentation/ImportingSwitchNSP.md)
 - [Playnite guide](https://github.com/tetj/BonusTools/blob/main/documentation/Playnite.docx?raw=1)
+
+# How to use multiple sd cards on your modded Switch
+
+To keep your 2-3 cards setup organized :
+
+1. Format the new cards to FAT32 or NTFS.
+2. Copy these folders from your **original card** to every new one:
+    - /atmosphere
+    - /bootloader
+    - /switch
+    - loose files such as hbmenu.nro and payload.bin
+    - do **not** copy /emummc
+    - do **not** copy /Nintendo
+3. Create a new emuMMC on the **second card**
+    - Insert the second SD card.
+    - Boot into Hekate.
+    - Go to : emuMMC -> Create emuMMC -> SD File
+4. Boot emuMMC/Atmosphere (the Switch will create a new Nintendo folder)
+5. Cleanup
+    - Use DBI's "Cleanup" feature after swapping cards to remove any orphaned entries if you find the Home Screen getting cluttered with broken icons.
+    - You might need to remove games previously installed using DBI : **Просмотр установленных игр** (Browse installed applications)  -> then X -> then A
+6. Install games on the **second card**
+7. Result :
+```
+SD CARD A
+  /atmosphere
+  /bootloader
+  /emuMMC
+  /Nintendo  ← games for library A
+
+SD CARD B
+  /atmosphere
+  /bootloader
+  /emuMMC
+  /Nintendo  ← games for library B
+```
+
+8.  Warning on Wear and Tear
+
+    The Switch’s SD card slot is a "daughterboard" connected by a somewhat fragile ribbon cable. It is not designed for thousands of swaps. 
+    If you plan to swap these 3 cards daily, you might consider eventually upgrading to a single 1.5TB or 2TB card to save the hardware from physical wear.
 
