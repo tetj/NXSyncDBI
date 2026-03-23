@@ -23,14 +23,17 @@ namespace CopyUpdates
             bool tagMode = false;
             string? matchFolderName = null;
             bool ulaunchMode = false;
+            string? ulaunchSdCardFolder = null;
             bool ageratingMode = false;
             bool recursive = false;
+            bool sphairaMode = false;
+            string? sphairaSdCardFolder = null;
 
             if (args.Length > 0)
             {
                 // Parse command line arguments
-                (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName, ulaunchMode, ageratingMode, recursive) = ParseCommandLineArguments(args);
-                if (string.IsNullOrEmpty(destinationPath) || (!sortMode && !flattenMode && !tagMode && !ulaunchMode && !ageratingMode && string.IsNullOrEmpty(matchFolderName) && string.IsNullOrEmpty(originPath)))
+                (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName, ulaunchMode, ulaunchSdCardFolder, ageratingMode, recursive, sphairaMode, sphairaSdCardFolder) = ParseCommandLineArguments(args);
+                if (string.IsNullOrEmpty(destinationPath) || (!sortMode && !flattenMode && !tagMode && !ulaunchMode && !ageratingMode && !sphairaMode && string.IsNullOrEmpty(matchFolderName) && string.IsNullOrEmpty(originPath)))
                 {
                     ShowHelp();
                     return;
@@ -142,8 +145,39 @@ namespace CopyUpdates
                     return;
                 }
                 var generator = new ULaunchMenuGenerator();
-                var ulaunchFolders = generator.ScanDirectory(originPath);
+                List<ULaunchFolder> ulaunchFolders;
+                if (!string.IsNullOrEmpty(ulaunchSdCardFolder))
+                {
+                    ulaunchFolders = generator.ScanBySdCardFolder(originPath, ulaunchSdCardFolder);
+                }
+                else
+                {
+                    ulaunchFolders = generator.ScanDirectory(originPath);
+                }
                 generator.Generate(destinationPath, ulaunchFolders);
+                WaitForKeyPressIfInteractive(args);
+                return;
+            }
+
+            // Sphaira mode: generate sphaira settings.json from a local directory structure.
+            if (sphairaMode)
+            {
+                if (string.IsNullOrEmpty(originPath) || !Directory.Exists(originPath))
+                {
+                    Console.WriteLine($"Error: Input directory does not exist: {originPath}");
+                    return;
+                }
+                var sphairaGenerator = new SphairaSettingsGenerator();
+                Dictionary<string, string> titleTags;
+                if (!string.IsNullOrEmpty(sphairaSdCardFolder))
+                {
+                    titleTags = sphairaGenerator.ScanBySdCardFolder(originPath, sphairaSdCardFolder);
+                }
+                else
+                {
+                    titleTags = sphairaGenerator.ScanDirectory(originPath);
+                }
+                sphairaGenerator.Generate(destinationPath, titleTags);
                 WaitForKeyPressIfInteractive(args);
                 return;
             }
@@ -344,7 +378,7 @@ namespace CopyUpdates
 
         // Parses the command-line arguments into individual settings used to control the sync operation.
         // Returns: a tuple containing originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, and matchFolderName.
-        static (string? originPath, string? destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode, bool tagMode, string? matchFolderName, bool ulaunchMode, bool ageratingMode, bool recursive) ParseCommandLineArguments(
+        static (string? originPath, string? destinationPath, bool compareMode, bool uploadAll, bool sortMode, bool flattenMode, bool tagMode, string? matchFolderName, bool ulaunchMode, string? ulaunchSdCardFolder, bool ageratingMode, bool recursive, bool sphairaMode, string? sphairaSdCardFolder) ParseCommandLineArguments(
             string[] args) // the array of command-line argument strings.
         {
             string? originPath = null;
@@ -356,8 +390,11 @@ namespace CopyUpdates
             bool tagMode = false;
             string? matchFolderName = null;
             bool ulaunchMode = false;
+            string? ulaunchSdCardFolder = null;
             bool ageratingMode = false;
             bool recursive = false;
+            bool sphairaMode = false;
+            string? sphairaSdCardFolder = null;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -429,6 +466,19 @@ namespace CopyUpdates
                     case "-ulaunch":
                     case "--ulaunch":
                         ulaunchMode = true;
+                        if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+                        {
+                            ulaunchSdCardFolder = args[++i];
+                        }
+                        break;
+
+                    case "-sphaira":
+                    case "--sphaira":
+                        sphairaMode = true;
+                        if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+                        {
+                            sphairaSdCardFolder = args[++i];
+                        }
                         break;
 
                     case "-agerating":
@@ -444,7 +494,7 @@ namespace CopyUpdates
                     case "-h":
                     case "--help":
                         ShowHelp();
-                        return (null, null, false, false, false, false, false, null, false, false, false);
+                        return (null, null, false, false, false, false, false, null, false, null, false, false, false, null);
 
                     default:
                         // If not using named parameters, assume first two args are origin and destination
@@ -452,13 +502,13 @@ namespace CopyUpdates
                         {
                             originPath = args[0];
                             destinationPath = args[1];
-                            return (originPath, destinationPath, false, false, false, false, false, null, false, false, false);
+                            return (originPath, destinationPath, false, false, false, false, false, null, false, null, false, false, false, null);
                         }
                         break;
                 }
             }
 
-            return (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName, ulaunchMode, ageratingMode, recursive);
+            return (originPath, destinationPath, compareMode, uploadAll, sortMode, flattenMode, tagMode, matchFolderName, ulaunchMode, ulaunchSdCardFolder, ageratingMode, recursive, sphairaMode, sphairaSdCardFolder);
         }
 
         // Prints usage instructions and all available command-line options to the console.
@@ -517,6 +567,22 @@ namespace CopyUpdates
             Console.WriteLine("  Sub-subfolders recurse into nested uLaunch folders.");
             Console.WriteLine("  Copy the output to /ulaunch/menu/ on your Switch SD card.");
             Console.WriteLine("  Example: CopyUpdates.exe -ulaunch -o C:\\Games\\ -d C:\\ulaunch_out\\");
+            Console.WriteLine();
+            Console.WriteLine("uLaunch SD card mode (-ulaunch <folder_name>):");
+            Console.WriteLine("  Scans -o <input_dir> recursively for all directories named <folder_name>.");
+            Console.WriteLine("  Each found directory is classified as SINGLE or COOP by checking whether");
+            Console.WriteLine("  a parent path segment is \"1\" (single player) or \"COOP\" (co-op).");
+            Console.WriteLine("  Generates two top-level uLaunch folders: SINGLE and COOP.");
+            Console.WriteLine("  Example: CopyUpdates.exe -ulaunch _SDCARD1 -o T:\\Backups\\titles\\ -d C:\\ulaunch_out\\");
+            Console.WriteLine();
+            Console.WriteLine("Sphaira mode (-sphaira [folder_name]):");
+            Console.WriteLine("  Scans -o <input_dir> for base games and classifies each as \"coop\" or \"single\"");
+            Console.WriteLine("  by checking whether a parent path segment is \"1\" (single) or \"COOP\" (co-op).");
+            Console.WriteLine("  Generates a single settings.json file into -d <output_dir>.");
+            Console.WriteLine("  Copy settings.json to /switch/sphaira/ on your Switch SD card.");
+            Console.WriteLine("  Optional <folder_name>: restrict scan to directories with that name (e.g. _SDCARD1).");
+            Console.WriteLine("  Example: CopyUpdates.exe -sphaira _SDCARD1 -o T:\\Backups\\titles\\ -d C:\\sphaira_out\\");
+            Console.WriteLine("  Example: CopyUpdates.exe -sphaira -o T:\\Backups\\titles\\ -d C:\\sphaira_out\\");
             Console.WriteLine();
             Console.WriteLine("Age rating mode (-agerating):");
             Console.WriteLine("  Sorts game folders and loose files under -o into a directory tree at -d");

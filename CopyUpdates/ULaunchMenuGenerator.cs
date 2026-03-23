@@ -65,6 +65,105 @@ namespace CopyUpdates
         }
 
         /// <summary>
+        /// Recursively scans <paramref name="inputPath"/> for all directories named
+        /// <paramref name="sdCardFolderName"/>. Each found directory is classified as
+        /// SINGLE or COOP by checking whether a parent path segment equals "1" or "COOP".
+        /// Returns a list containing at most two <see cref="ULaunchFolder"/> entries:
+        /// one named "SINGLE" and one named "COOP" (empty categories are omitted).
+        /// </summary>
+        public List<ULaunchFolder> ScanBySdCardFolder(string inputPath, string sdCardFolderName)
+        {
+            if (!Directory.Exists(inputPath))
+            {
+                throw new DirectoryNotFoundException($"Input directory not found: {inputPath}");
+            }
+
+            var singleFolder = new ULaunchFolder("SINGLE");
+            var coopFolder   = new ULaunchFolder("COOP");
+            var seenSingle   = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var seenCoop     = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string sdCardDir in Directory.EnumerateDirectories(inputPath, sdCardFolderName, SearchOption.AllDirectories).Order())
+            {
+                string? category = ClassifyByParentPath(sdCardDir);
+                if (category == null)
+                {
+                    Console.WriteLine($"[Skip] Could not classify (no '1' or 'COOP' parent found): {sdCardDir}");
+                    continue;
+                }
+
+                var targetFolder = category == "COOP" ? coopFolder : singleFolder;
+                var seenIds      = category == "COOP" ? seenCoop   : seenSingle;
+
+                foreach (string file in Directory.EnumerateFiles(sdCardDir).Order())
+                {
+                    string ext = Path.GetExtension(file);
+                    if (!ext.Equals(".nsp", StringComparison.OrdinalIgnoreCase) &&
+                        !ext.Equals(".nsz", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    string fileName = Path.GetFileName(file);
+                    if (IsUpdateOrDlc(fileName))
+                    {
+                        continue;
+                    }
+
+                    string? titleId = ExtractTitleId(fileName);
+                    if (titleId == null)
+                    {
+                        continue;
+                    }
+
+                    if (!seenIds.Add(titleId))
+                    {
+                        continue;
+                    }
+
+                    targetFolder.Games.Add(new ULaunchGameItem(ExtractGameName(fileName), titleId));
+                }
+            }
+
+            var result = new List<ULaunchFolder>();
+            if (!singleFolder.IsEmpty)
+            {
+                result.Add(singleFolder);
+            }
+            if (!coopFolder.IsEmpty)
+            {
+                result.Add(coopFolder);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Inspects the path segments of <paramref name="dirPath"/> to determine the
+        /// player-count category. Returns "COOP" when a segment equals "COOP"
+        /// (case-insensitive), "SINGLE" when a segment equals "1", or <c>null</c> if
+        /// neither is found. COOP is checked first so it wins if both appear.
+        /// </summary>
+        private static string? ClassifyByParentPath(string dirPath)
+        {
+            string[] segments = dirPath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            bool hasSingle = false;
+
+            foreach (string segment in segments)
+            {
+                if (segment.Equals("COOP", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "COOP";
+                }
+                if (segment.Equals("1", StringComparison.Ordinal))
+                {
+                    hasSingle = true;
+                }
+            }
+
+            return hasSingle ? "SINGLE" : null;
+        }
+
+        /// <summary>
         /// Writes the uLaunch directory structure and .m.json entry files to
         /// <paramref name="outputPath"/>. Copy its contents to /ulaunch/menu/ on your SD card.
         /// </summary>
@@ -174,6 +273,7 @@ namespace CopyUpdates
                 var gameEntry = new ULaunchRetailGameEntry
                 {
                     Type          = 1,
+                    Name          = game.DisplayName,
                     ApplicationId = applicationId
                 };
 
@@ -305,6 +405,7 @@ namespace CopyUpdates
     internal class ULaunchRetailGameEntry
     {
         [JsonPropertyName("type")]           public int    Type          { get; set; }
+        [JsonPropertyName("name")]           public string Name          { get; set; } = string.Empty;
         [JsonPropertyName("application_id")] public string ApplicationId { get; set; } = string.Empty;
     }
 }

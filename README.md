@@ -337,6 +337,29 @@ In addition to DBI, the tool auto-detects [sphaira](https://github.com/ITotalJus
 CopyUpdates -o "This PC\Switch\Games" -d "C:\AllMyGames"
 ```
 
+### sphaira tags
+
+settings.json :
+```
+{
+  "pinned_apps": [
+    "01007ef00011e000",
+    "0100bc0018138000"
+  ],
+  "tags": {
+    "01007ef00011e000": ["coop"],
+    "0100bc0018138000": ["coop"],
+    "01008bb019aba000": ["single"],
+    "PASTE_REMAINING_IDS_HERE": ["coop"]
+  },
+  "sort_kind": 0,
+  "show_titles": true,
+  "icon_cache_enabled": true,
+  "theme_path": "sdmc:/switch/sphaira/themes/default.json",
+  "grid_size": 6
+}
+```
+
 ---
 
 ### Updated options table
