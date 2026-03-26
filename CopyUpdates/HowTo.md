@@ -14,6 +14,8 @@
 - [How to have your own local DBI shop (OwnFoil alternative)](#how-to-have-your-own-local-dbi-shop-ownfoil-alternative)
 - [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
 - [How to use multiple sd cards on your modded Nintendo Switch](#how-to-use-multiple-sd-cards-on-your-modded-switch)
+- [How to filter your games by age rating and max number of players](#how-to-filter-your-games-by-age-rating-and-max-number-of-players)
+
 
 # How to update your games from DBI shops
 
@@ -236,4 +238,12 @@ SD CARD B
 
     The Switch’s SD card slot is a "daughterboard" connected by a somewhat fragile ribbon cable. It is not designed for thousands of swaps. 
     If you plan to swap these 3 cards daily, you might consider eventually upgrading to a single 1.5TB or 2TB card to save the hardware from physical wear.
+
+# How to filter your games by age rating and max number of players
+- Get latest release here : https://github.com/tetj/sphaira/releases/
+- Copy the .nro on your SD card /switch folder
+- Hold R button while starting a game
+- Click on Sphaira
+- Press Y -> Menu -> Games
+- Press X -> Filter By -> the choice is yours
 
