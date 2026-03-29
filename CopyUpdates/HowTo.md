@@ -15,7 +15,7 @@
 - [How to keep track of all your games in one place (Playnite)](#how-to-keep-track-of-all-your-games-in-one-place-playnite)
 - [How to use multiple sd cards on your modded Nintendo Switch](#how-to-use-multiple-sd-cards-on-your-modded-switch)
 - [How to filter your games by age rating and max number of players](#how-to-filter-your-games-by-age-rating-and-max-number-of-players)
-
+- [Emulators](#emulation)
 
 # How to update your games from DBI shops
 
@@ -247,3 +247,12 @@ SD CARD B
 - Press Y -> Menu -> Games
 - Press X -> Filter By -> the choice is yours
 
+# Emulation
+Emulators : https://emulation.gametechwiki.com/index.php/Nintendo_Switch_emulators
+
+Best played on emulators : [https://github.com/tetj/NXSyncDBI/blob/main/CopyUpdates/best-games-to-emulate.docx](https://github.com/tetj/NXSyncDBI/raw/refs/heads/main/CopyUpdates/best-games-to-emulate.docx)
+
+Compatibility Lists : 
+- Most complete : [https://github.com/tetj/NXSyncDBI/blob/main/CopyUpdates/NSW_CompatList-2026.xlsx](https://github.com/tetj/NXSyncDBI/raw/refs/heads/main/CopyUpdates/NSW_CompatList-2026.xlsx)
+- Community driven : https://www.emuready.com/
+- Ryujinx : https://emulation.gametechwiki.com/index.php/Ryujinx_Game_Compatibility_List
