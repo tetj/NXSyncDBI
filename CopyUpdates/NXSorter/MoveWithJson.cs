@@ -106,11 +106,16 @@ namespace CopyUpdates
             }
 
             string ageRating = "UNKNOWN";
-            if (game.Rating < 7)
+
+            if (game.Rating == null || game.Rating <= 0)
+            {
+                ageRating = "UNKNOWN";
+            }
+            else if (game.Rating < 10)
             {
                 ageRating = "EVERYONE";
             }
-            else if (game.Rating < 11)
+            else if (game.Rating < 13)
             {
                 ageRating = "EVERYONE 10+";
             }
@@ -118,7 +123,7 @@ namespace CopyUpdates
             {
                 ageRating = "TEEN";
             }
-            else if (game.Rating > 16)
+            else
             {
                 ageRating = "MATURE";
             }
